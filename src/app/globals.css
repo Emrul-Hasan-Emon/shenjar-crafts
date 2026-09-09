@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #f4ead9;
+  --color-cream-dark: #e7d3ac;
+  --color-wood-soft: #efd7b0;
+  --color-navy: #16294a;
+  --color-navy-light: #24406e;
+  --color-wood: #a8642f;
+  --color-wood-light: #cf9556;
+  --color-ink: #241f18;
+  --color-ink-soft: #6c6455;
+  --color-ink-dark: #0c1526;
+  --color-border: rgba(22, 41, 74, 0.1);
+
+  --background: var(--color-cream);
+  --foreground: var(--color-ink);
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-cream-dark: var(--color-cream-dark);
+  --color-wood-soft: var(--color-wood-soft);
+  --color-navy: var(--color-navy);
+  --color-navy-light: var(--color-navy-light);
+  --color-wood: var(--color-wood);
+  --color-wood-light: var(--color-wood-light);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-dark: var(--color-ink-dark);
+  --color-border: var(--color-border);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(168, 100, 47, 0.045) 0, rgba(168, 100, 47, 0.045) 1px, transparent 1px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(168, 100, 47, 0.045) 0, rgba(168, 100, 47, 0.045) 1px, transparent 1px, transparent 10px);
+  color: var(--foreground);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
