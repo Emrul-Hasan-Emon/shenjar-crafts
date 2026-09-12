@@ -87,15 +87,28 @@ export default async function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-wood-soft/60 blur-3xl" />
-        <Container className="relative grid grid-cols-1 items-center gap-10 py-14 sm:py-16 lg:grid-cols-2 lg:gap-12">
-          <div>
-            <p className="mb-4 text-sm font-semibold tracking-[0.2em] text-wood uppercase">
+        <Container className="relative flex flex-col gap-5 py-10 sm:gap-6 sm:py-12 lg:grid lg:grid-cols-2 lg:grid-rows-2 lg:items-center lg:gap-x-12 lg:gap-y-0 lg:py-16">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <p className="mb-3 text-sm font-semibold tracking-[0.2em] text-wood uppercase lg:mb-4">
               Interior Design Studio &middot; Carpenter &middot; Furniture
             </p>
-            <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-navy sm:text-5xl">
+            <h1 className="font-display text-3xl font-bold leading-[1.05] tracking-tight text-navy sm:text-4xl lg:text-5xl">
               {site.tagline}
             </h1>
-            <ul className="mt-6 max-w-lg space-y-2.5">
+          </div>
+
+          <BannerSlider
+            slides={slides}
+            fallbackUrl={slides.length === 0 ? FALLBACK_HERO_IMAGE : undefined}
+            className="aspect-[16/9] sm:aspect-[5/4] lg:col-start-2 lg:row-start-1 lg:row-span-2"
+          />
+
+          <div className="lg:col-start-1 lg:row-start-2">
+            <p className="max-w-lg text-base text-ink-soft lg:hidden">
+              Custom furniture, interior &amp; exterior design, and electrical work — premium
+              materials and flawless finishing, built around your space in Dhaka.
+            </p>
+            <ul className="mt-6 hidden max-w-lg space-y-2.5 lg:block">
               {[
                 "Beautiful interior decoration for your office, showroom, or home",
                 "Custom-made furniture, designed and built just for you",
@@ -108,7 +121,7 @@ export default async function Home() {
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center lg:mt-8">
               <a
                 href={site.whatsappHref}
                 target="_blank"
@@ -136,12 +149,6 @@ export default async function Home() {
               </a>
             </div>
           </div>
-
-          <BannerSlider
-            slides={slides}
-            fallbackUrl={slides.length === 0 ? FALLBACK_HERO_IMAGE : undefined}
-            className="aspect-[4/5] sm:aspect-[5/4]"
-          />
         </Container>
       </section>
 
@@ -186,22 +193,22 @@ export default async function Home() {
       </section>
 
       {/* About snippet */}
-      <section className="py-20">
-        <Container className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+      <section className="py-10 sm:py-12 lg:py-20">
+        <Container className="grid grid-cols-1 items-center gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-12">
           <div>
             <SectionHeading
               eyebrow="Who We Are"
               title="Crafted with purpose, built to last"
               description="Shenjar Crafts is a creative workshop built on craftsmanship. We design and build custom furniture, complete interior and exterior makeovers, and safe, reliable house wiring — every project handled with care and close attention to detail."
             />
-            <p className="mt-6 text-base leading-relaxed text-ink-soft">
+            <p className="mt-6 hidden text-base leading-relaxed text-ink-soft lg:block">
               Modern, traditional, minimal, or fully your own — whatever style
               you have in mind, we turn it into beautifully made furniture and
               spaces for your home, office, or shop.
             </p>
             <Link
               href="/about"
-              className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-wood"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-wood lg:mt-6"
             >
               More about our story
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
@@ -210,7 +217,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="flex justify-center">
+          <div className="hidden justify-center lg:flex">
             <div className="relative flex aspect-square w-full max-w-sm items-center justify-center rounded-3xl border border-border bg-white p-10 shadow-[0_30px_60px_-30px_rgba(22,41,74,0.25)]">
               <div className="pointer-events-none absolute inset-0 rounded-3xl bg-wood-soft/30" />
               <div className="relative text-center">
@@ -228,7 +235,7 @@ export default async function Home() {
       </section>
 
       {/* Services */}
-      <section className="bg-cream-dark/60 py-20">
+      <section className="bg-cream-dark/60 py-12 sm:py-16 lg:py-20">
         <Container>
           <SectionHeading
             eyebrow="What We Do"
@@ -236,7 +243,7 @@ export default async function Home() {
             description="Everything you need under one roof — custom furniture, interior and exterior design, electrical work, and installation services for homes and businesses alike."
             align="center"
           />
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-6 lg:grid-cols-3">
             {featuredServices.map((service) => (
               <ServiceCard key={service.slug} service={service} />
             ))}
@@ -256,7 +263,7 @@ export default async function Home() {
 
       {/* Products preview */}
       {featuredProducts.length > 0 ? (
-        <section className="py-20">
+        <section className="py-12 sm:py-16 lg:py-20">
           <Container>
             <SectionHeading
               eyebrow="What We Can Build"
@@ -264,7 +271,7 @@ export default async function Home() {
               description="A look at furniture and interior pieces we design and build — fully customizable in size, color, and finish."
               align="center"
             />
-            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-6 lg:grid-cols-4">
               {featuredProducts.map((product) => {
                 const category = categories.find((c) => c.id === product.category_id);
                 return (
@@ -283,11 +290,11 @@ export default async function Home() {
                       />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-ink-dark/85 via-ink-dark/0 to-transparent opacity-90" />
-                    <div className="absolute inset-x-0 bottom-0 p-4">
-                      <p className="text-sm font-semibold text-white">
+                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                      <p className="text-xs font-semibold text-white sm:text-sm">
                         <Localized en={product.name_en ?? category?.name_en} bn={product.name_bn ?? category?.name_bn} />
                       </p>
-                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-wood-light opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <span className="mt-1 hidden items-center gap-1 text-xs font-semibold text-wood-light opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:inline-flex">
                         View Details
                       </span>
                     </div>
@@ -309,7 +316,7 @@ export default async function Home() {
 
       {/* Our Work preview */}
       {featuredWork.length > 0 ? (
-        <section className="bg-cream-dark/60 py-20">
+        <section className="bg-cream-dark/60 py-12 sm:py-16 lg:py-20">
           <Container>
             <SectionHeading
               eyebrow="Our Work"
@@ -317,7 +324,7 @@ export default async function Home() {
               description="Real projects from our workshop and job sites in Dhaka."
               align="center"
             />
-            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-6 lg:grid-cols-3">
               {featuredWork.map((item) => {
                 const category = categories.find((c) => c.id === item.category_id);
                 return (
@@ -338,11 +345,11 @@ export default async function Home() {
                         <PlaceholderTile category={category?.name_en ?? "Our Work"} />
                       )}
                     </div>
-                    <figcaption className="flex items-center justify-between gap-3 px-5 py-4">
-                      <span className="text-sm font-medium text-navy">
+                    <figcaption className="flex flex-col gap-1 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5 sm:py-4">
+                      <span className="text-xs font-medium text-navy sm:text-sm">
                         <Localized en={item.name_en ?? category?.name_en} bn={item.name_bn ?? category?.name_bn} />
                       </span>
-                      <span className="rounded-full bg-wood-soft px-3 py-1 text-xs font-semibold tracking-wide text-wood uppercase">
+                      <span className="inline-block w-fit rounded-full bg-wood-soft px-2 py-0.5 text-[10px] font-semibold tracking-wide text-wood uppercase sm:px-3 sm:py-1 sm:text-xs">
                         <Localized en={category?.name_en} bn={category?.name_bn} />
                       </span>
                     </figcaption>

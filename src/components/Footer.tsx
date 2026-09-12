@@ -6,20 +6,20 @@ import { site } from "@/data/site";
 export default function Footer() {
   return (
     <footer className="bg-navy text-cream">
-      <Container className="grid grid-cols-1 gap-10 py-14 sm:grid-cols-3">
+      <Container className="grid grid-cols-3 gap-4 py-10 sm:gap-10 sm:py-14">
         <div>
           <Logo dark />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream/70">
+          <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-cream/70 sm:mt-4 sm:text-sm">
             {site.tagline} Custom furniture, interior, exterior, and
             electrical solutions in Dhaka.
           </p>
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold tracking-[0.2em] text-wood-light uppercase">
+          <h3 className="text-xs font-semibold tracking-[0.1em] text-wood-light uppercase sm:text-sm sm:tracking-[0.2em]">
             Explore
           </h3>
-          <ul className="mt-4 space-y-2 text-sm text-cream/80">
+          <ul className="mt-3 space-y-2 text-xs text-cream/80 sm:mt-4 sm:text-sm">
             <li>
               <Link href="/about" className="hover:text-cream">
                 About Us
@@ -49,10 +49,10 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold tracking-[0.2em] text-wood-light uppercase">
+          <h3 className="text-xs font-semibold tracking-[0.1em] text-wood-light uppercase sm:text-sm sm:tracking-[0.2em]">
             Get in Touch
           </h3>
-          <ul className="mt-4 space-y-2 text-sm text-cream/80">
+          <ul className="mt-3 space-y-2 text-xs text-cream/80 sm:mt-4 sm:text-sm">
             <li>
               <a href={site.phoneHref} className="hover:text-cream">
                 {site.phoneDisplay}

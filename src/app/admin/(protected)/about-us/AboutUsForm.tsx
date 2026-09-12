@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
 import { updateAboutUs } from "@server/db/aboutUs";
 import type { AboutUs } from "@server/db/types";
+import Spinner from "@/components/Spinner";
 
 export default function AboutUsForm({ initial }: { initial: AboutUs | null }) {
   const router = useRouter();
@@ -61,8 +62,9 @@ export default function AboutUsForm({ initial }: { initial: AboutUs | null }) {
       <button
         type="submit"
         disabled={busy}
-        className="rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
       >
+        {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
         {busy ? "Saving..." : "Save"}
       </button>
     </form>

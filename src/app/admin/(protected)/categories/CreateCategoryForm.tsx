@@ -7,6 +7,7 @@ import { createCategory } from "@server/db/categories";
 import { uploadFile, safeFileName } from "@server/supabase/storage";
 import { compressImageIfNeeded } from "@/lib/compressImage";
 import MediaPreviewInput from "../_components/MediaPreviewInput";
+import Spinner from "@/components/Spinner";
 
 export default function CreateCategoryForm() {
   const router = useRouter();
@@ -79,8 +80,9 @@ export default function CreateCategoryForm() {
       <button
         type="submit"
         disabled={busy}
-        className="rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
       >
+        {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
         {busy ? "Creating..." : "Create category"}
       </button>
     </form>

@@ -22,20 +22,22 @@ export default function CTABand() {
               electrical project — tell us what you need and we&apos;ll
               bring it to life.
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-row flex-wrap justify-center gap-2 sm:gap-3">
               <a
                 href={site.whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-wood px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light"
+                className="rounded-full bg-wood px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-wood-light sm:px-7 sm:py-3 sm:text-sm"
               >
-                Message on WhatsApp
+                <span className="sm:hidden">WhatsApp</span>
+                <span className="hidden sm:inline">Message on WhatsApp</span>
               </a>
               <a
                 href={site.phoneHref}
-                className="rounded-full border border-cream/25 px-7 py-3 text-sm font-semibold text-cream transition-colors hover:bg-cream/10"
+                className="rounded-full border border-cream/25 px-4 py-2.5 text-xs font-semibold text-cream transition-colors hover:bg-cream/10 sm:px-7 sm:py-3 sm:text-sm"
               >
-                Call {site.phoneDisplay}
+                <span className="sm:hidden">Call Now</span>
+                <span className="hidden sm:inline">Call {site.phoneDisplay}</span>
               </a>
             </div>
           </div>

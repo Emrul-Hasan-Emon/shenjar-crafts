@@ -59,22 +59,22 @@ export default function ContactPage() {
           align="center"
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-4">
           {CONTACT_CARDS.map((card) => (
             <a
               key={card.label}
               href={card.href}
               target={card.href.startsWith("http") ? "_blank" : undefined}
               rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="rounded-2xl border border-border bg-white p-6 text-center transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
+              className="rounded-2xl border border-border bg-white p-4 text-center transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-6"
             >
-              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-wood-soft text-wood">
+              <span className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-wood-soft text-wood sm:h-11 sm:w-11">
                 <ContactIcon path={card.icon} />
               </span>
-              <p className="mt-4 text-xs font-semibold tracking-[0.2em] text-wood uppercase">
+              <p className="mt-3 text-[10px] font-semibold tracking-[0.15em] text-wood uppercase sm:mt-4 sm:text-xs sm:tracking-[0.2em]">
                 {card.label}
               </p>
-              <p className="mt-2 text-sm font-medium text-navy">{card.value}</p>
+              <p className="mt-1.5 text-xs font-medium text-navy sm:mt-2 sm:text-sm">{card.value}</p>
             </a>
           ))}
         </div>

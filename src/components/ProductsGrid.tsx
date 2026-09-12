@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { pickLocalized, useLanguage } from "@/lib/i18n";
 import OrderModal from "./OrderModal";
@@ -38,36 +38,47 @@ export default function ProductsGrid({
 
   const visible = active ? items.filter((p) => p.categorySlug === active.slug) : items;
 
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [activeSlug]);
+
   function selectFilter(slug: string | null) {
     router.replace(slug ? `/products?category=${slug}` : "/products", { scroll: false });
   }
 
   return (
     <div>
-      <div className="flex flex-wrap justify-center gap-2">
-        <button
-          type="button"
-          onClick={() => selectFilter(null)}
-          className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-            !active ? "bg-navy text-cream" : "bg-white text-navy hover:bg-cream-dark"
-          }`}
-        >
-          All
-        </button>
-        {categories.map((category) => (
+      <div className="sticky top-20 z-30 -mx-6 bg-cream/95 px-6 py-3 backdrop-blur sm:-mx-8 sm:px-8">
+        <div className="flex flex-wrap justify-center gap-2">
           <button
-            key={category.slug}
             type="button"
-            onClick={() => selectFilter(category.slug)}
+            onClick={() => selectFilter(null)}
             className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-              active?.slug === category.slug
-                ? "bg-navy text-cream"
-                : "bg-white text-navy hover:bg-cream-dark"
+              !active ? "bg-navy text-cream" : "bg-white text-navy hover:bg-cream-dark"
             }`}
           >
-            {pickLocalized(category.name, category.nameBn, lang)}
+            All
           </button>
-        ))}
+          {categories.map((category) => (
+            <button
+              key={category.slug}
+              type="button"
+              onClick={() => selectFilter(category.slug)}
+              className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+                active?.slug === category.slug
+                  ? "bg-navy text-cream"
+                  : "bg-white text-navy hover:bg-cream-dark"
+              }`}
+            >
+              {pickLocalized(category.name, category.nameBn, lang)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {visible.length === 0 ? (
@@ -75,7 +86,7 @@ export default function ProductsGrid({
           No products in this category yet — check back soon.
         </p>
       ) : (
-        <div className="mt-10 columns-1 gap-6 sm:columns-2 lg:columns-3">
+        <div className="mt-8 columns-2 gap-3 sm:mt-10 sm:gap-6 lg:columns-3">
           {visible.map((product) => {
             const categoryName = pickLocalized(product.categoryName, product.categoryNameBn, lang);
             const name = pickLocalized(product.name, product.nameBn, lang);
@@ -84,9 +95,9 @@ export default function ProductsGrid({
                 type="button"
                 key={product.id}
                 onClick={() => setSelected(product)}
-                className="group relative mb-6 block w-full break-inside-avoid overflow-hidden rounded-2xl border border-border bg-white text-left transition-shadow duration-300 hover:shadow-[0_20px_40px_-24px_rgba(22,41,74,0.25)]"
+                className="group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-2xl border border-border bg-white text-left transition-shadow duration-300 hover:shadow-[0_20px_40px_-24px_rgba(22,41,74,0.25)] sm:mb-6"
               >
-                <span className="absolute top-4 left-4 z-10 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold tracking-wide text-navy uppercase shadow-sm backdrop-blur">
+                <span className="absolute top-2 left-2 z-10 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-navy uppercase shadow-sm backdrop-blur sm:top-4 sm:left-4 sm:px-3 sm:py-1 sm:text-xs">
                   {categoryName}
                 </span>
                 {product.width && product.height ? (
@@ -109,7 +120,7 @@ export default function ProductsGrid({
                     />
                   </div>
                 )}
-                {name ? <p className="px-4 py-3 text-sm text-ink-soft">{name}</p> : null}
+                {name ? <p className="px-3 py-2 text-xs text-ink-soft sm:px-4 sm:py-3 sm:text-sm">{name}</p> : null}
               </button>
             );
           })}

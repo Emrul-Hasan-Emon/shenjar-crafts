@@ -8,6 +8,7 @@ import { uploadFile, safeFileName, getPublicUrl } from "@server/supabase/storage
 import { compressImageIfNeeded } from "@/lib/compressImage";
 import MediaPreviewInput from "../../_components/MediaPreviewInput";
 import type { Category } from "@server/db/types";
+import Spinner from "@/components/Spinner";
 
 export default function EditCategoryForm({ category }: { category: Category }) {
   const router = useRouter();
@@ -102,8 +103,9 @@ export default function EditCategoryForm({ category }: { category: Category }) {
       <button
         type="submit"
         disabled={busy}
-        className="rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
       >
+        {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
         {busy ? "Saving..." : "Save changes"}
       </button>
     </form>

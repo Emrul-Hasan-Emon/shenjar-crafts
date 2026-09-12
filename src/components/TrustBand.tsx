@@ -31,7 +31,7 @@ const PILLARS = [
 
 export default function TrustBand() {
   return (
-    <section className="relative overflow-hidden bg-ink-dark py-20">
+    <section className="relative overflow-hidden bg-ink-dark py-12 sm:py-16 lg:py-20">
       <div className="pointer-events-none absolute top-0 left-1/2 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-wood/10 blur-3xl" />
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
@@ -43,10 +43,10 @@ export default function TrustBand() {
           </h2>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:mt-14 sm:gap-8 lg:grid-cols-4">
           {PILLARS.map((pillar) => (
             <div key={pillar.title} className="text-center">
-              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/5 text-wood-light">
+              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-wood-light sm:h-14 sm:w-14">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -55,15 +55,15 @@ export default function TrustBand() {
                   strokeWidth={1.4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                 >
                   {pillar.icon}
                 </svg>
               </span>
-              <p className="font-display mt-5 text-base font-semibold text-white">
+              <p className="font-display mt-3 text-sm font-semibold text-white sm:mt-5 sm:text-base">
                 {pillar.title}
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">
+              <p className="mt-1.5 text-xs leading-relaxed text-white/60 sm:mt-2 sm:text-sm">
                 {pillar.description}
               </p>
             </div>

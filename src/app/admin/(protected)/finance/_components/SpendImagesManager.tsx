@@ -8,6 +8,7 @@ import { createSpendImage, deleteSpendImage, MAX_SPEND_IMAGES } from "@server/db
 import { uploadFile, safeFileName } from "@server/supabase/storage";
 import { compressImageIfNeeded } from "@/lib/compressImage";
 import MediaPreviewInput from "../../_components/MediaPreviewInput";
+import Spinner from "@/components/Spinner";
 
 export type SpendImageItem = { id: string; url: string };
 
@@ -79,8 +80,9 @@ export default function SpendImagesManager({
                 type="button"
                 disabled={busy}
                 onClick={() => handleDelete(img.id)}
-                className="w-full px-2 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                className="inline-flex w-full items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
               >
+                {busy ? <Spinner className="h-3 w-3 border-2" /> : null}
                 Delete
               </button>
             </div>
@@ -98,8 +100,9 @@ export default function SpendImagesManager({
           <button
             type="submit"
             disabled={busy}
-            className="mt-3 w-full rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
           >
+            {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
             {busy ? "Uploading..." : "Add image"}
           </button>
         </form>

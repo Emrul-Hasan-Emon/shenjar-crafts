@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@server/supabase/client";
+import Spinner from "@/components/Spinner";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -63,8 +64,9 @@ export default function AdminLoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full rounded-full bg-wood px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-60"
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wood px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-60"
         >
+          {loading ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>

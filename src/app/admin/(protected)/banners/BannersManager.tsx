@@ -8,6 +8,7 @@ import { createBanner, deleteBanner, moveBanner } from "@server/db/banners";
 import { uploadFile, safeFileName } from "@server/supabase/storage";
 import { compressImageIfNeeded } from "@/lib/compressImage";
 import MediaPreviewInput from "../_components/MediaPreviewInput";
+import Spinner from "@/components/Spinner";
 
 type BannerItem = { id: string; url: string };
 
@@ -87,8 +88,9 @@ export default function BannersManager({
         <button
           type="submit"
           disabled={atLimit || busy}
-          className="mt-3 w-full rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
         >
+          {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
           {busy ? "Uploading..." : "Add banner"}
         </button>
         {atLimit ? (

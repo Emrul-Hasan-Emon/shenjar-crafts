@@ -10,6 +10,7 @@ import { compressImageIfNeeded } from "@/lib/compressImage";
 import { measureImage } from "@/lib/measureImage";
 import MediaPreviewInput from "./MediaPreviewInput";
 import { extractStoragePath, type CategoryOption } from "./PhotocardCard";
+import Spinner from "@/components/Spinner";
 import type { MediaKind } from "@server/db/types";
 
 export const MAX_VIDEO_BYTES = 15 * 1024 * 1024; // 15MB
@@ -140,8 +141,9 @@ export default function RawMediaCard({
           <button
             type="submit"
             disabled={busy}
-            className="flex-1 rounded-md bg-wood px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-wood px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
           >
+            {busy ? <Spinner className="h-3 w-3 border-2 text-white" /> : null}
             {busy ? "Saving..." : "Save"}
           </button>
           <button

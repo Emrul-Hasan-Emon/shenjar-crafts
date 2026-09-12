@@ -19,7 +19,7 @@ export default function CategoryTiles({ tiles }: { tiles: CategoryTile[] }) {
   const { lang } = useLanguage();
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
       {tiles.map((tile) => {
         const title = pickLocalized(tile.title, tile.titleBn, lang);
         const subtitle = pickLocalized(tile.subtitle, tile.subtitleBn, lang);
@@ -43,10 +43,10 @@ export default function CategoryTiles({ tiles }: { tiles: CategoryTile[] }) {
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-ink-dark/90 via-ink-dark/10 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-5">
-              <p className="font-display text-lg font-semibold text-white">{title}</p>
-              <p className="mt-1 text-xs text-white/70">{subtitle}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-wood-light opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5">
+              <p className="font-display text-sm font-semibold text-white sm:text-lg">{title}</p>
+              <p className="mt-1 hidden text-xs text-white/70 sm:block">{subtitle}</p>
+              <span className="mt-3 hidden items-center gap-1 text-xs font-semibold text-wood-light opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:inline-flex">
                 Explore
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

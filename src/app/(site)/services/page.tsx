@@ -57,11 +57,11 @@ export default async function ServicesPage() {
               <div
                 key={service.slug}
                 id={service.slug}
-                className="scroll-mt-24 rounded-2xl border border-border bg-white p-8 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
+                className="scroll-mt-24 rounded-2xl border border-border bg-white p-5 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-8"
               >
-                <div className="flex items-start gap-5">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-wood-soft text-wood">
-                    <Icon name={service.icon} className="h-6 w-6" />
+                <div className="flex items-start gap-3 sm:gap-5">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-wood-soft text-wood sm:h-12 sm:w-12">
+                    <Icon name={service.icon} className="h-5 w-5 sm:h-6 sm:w-6" />
                   </span>
                   <div className="flex-1">
                     <p className="text-xs font-semibold tracking-[0.2em] text-wood/70 uppercase">

@@ -9,6 +9,7 @@ import { uploadFile, safeFileName } from "@server/supabase/storage";
 import { compressImageIfNeeded } from "@/lib/compressImage";
 import { measureImage } from "@/lib/measureImage";
 import MediaPreviewInput from "./MediaPreviewInput";
+import Spinner from "@/components/Spinner";
 
 export type CategoryOption = { id: string; name: string };
 export type PhotocardItem = {
@@ -131,8 +132,9 @@ export default function PhotocardCard({
           <button
             type="submit"
             disabled={busy}
-            className="flex-1 rounded-md bg-wood px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-md bg-wood px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
           >
+            {busy ? <Spinner className="h-3 w-3 border-2 text-white" /> : null}
             {busy ? "Saving..." : "Save"}
           </button>
           <button

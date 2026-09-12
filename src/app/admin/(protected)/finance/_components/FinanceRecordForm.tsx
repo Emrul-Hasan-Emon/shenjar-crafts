@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
 import { createFinanceRecord, deleteFinanceRecord, updateFinanceRecord } from "@server/db/finance";
 import type { FinanceRecord, FinanceType } from "@server/db/finance";
+import Spinner from "@/components/Spinner";
 
 export type CategoryOption = { id: string; name: string };
 
@@ -339,8 +340,9 @@ export default function FinanceRecordForm({
         <button
           type="submit"
           disabled={busy || categories.length === 0}
-          className="rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
         >
+          {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
           {busy ? "Saving..." : record ? "Save changes" : `Create ${isProject ? "project" : "spend"}`}
         </button>
 
@@ -358,8 +360,9 @@ export default function FinanceRecordForm({
             type="button"
             onClick={handleDelete}
             disabled={busy}
-            className="ml-auto rounded-full border border-red-200 px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+            className="ml-auto inline-flex items-center gap-2 rounded-full border border-red-200 px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
           >
+            {busy ? <Spinner className="h-4 w-4 border-2" /> : null}
             Delete {isProject ? "project" : "spend"}
           </button>
         ) : null}
