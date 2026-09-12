@@ -55,9 +55,38 @@ export default function Icon({
   );
 }
 
-export const CATEGORY_ICON: Record<string, IconKey> = {
-  Furniture: "furniture",
-  Interior: "interior",
-  Exterior: "exterior",
-  Electrical: "electrical",
-};
+const NAME_ICON_HINTS: Array<{ icon: IconKey; keywords: string[] }> = [
+  { icon: "interior", keywords: ["interior", "kitchen", "room"] },
+  { icon: "exterior", keywords: ["exterior", "outdoor"] },
+  { icon: "electrical", keywords: ["electrical", "wiring"] },
+  { icon: "machine", keywords: ["machine", "equipment"] },
+  { icon: "fabrication", keywords: ["rack", "shelf", "fabrication"] },
+  {
+    icon: "furniture",
+    keywords: [
+      "furniture",
+      "cabinet",
+      "table",
+      "storage",
+      "vanity",
+      "study",
+      "office",
+      "chair",
+      "sofa",
+      "bed",
+    ],
+  },
+];
+
+/**
+ * Categories are free-form (admin-created), so there's no fixed name->icon
+ * map any more — just a best-effort keyword guess, falling back to a generic
+ * mark. Used by PlaceholderTile and anywhere a category has no banner image.
+ */
+export function iconForCategoryName(name: string): IconKey {
+  const lower = name.toLowerCase();
+  for (const { icon, keywords } of NAME_ICON_HINTS) {
+    if (keywords.some((k) => lower.includes(k))) return icon;
+  }
+  return "custom";
+}

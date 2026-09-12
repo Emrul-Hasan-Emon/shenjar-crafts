@@ -1,8 +1,7 @@
-import Icon from "./icons";
-import { CATEGORY_ICON } from "./icons";
+import Icon, { iconForCategoryName } from "./icons";
 
 export default function PlaceholderTile({ category }: { category: string }) {
-  const icon = CATEGORY_ICON[category] ?? "furniture";
+  const icon = iconForCategoryName(category);
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 overflow-hidden bg-gradient-to-br from-cream-dark via-cream to-wood-soft/60">
       <div

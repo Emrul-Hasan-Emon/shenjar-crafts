@@ -36,8 +36,8 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/portfolio" className="hover:text-cream">
-                Portfolio
+              <Link href="/our-work" className="hover:text-cream">
+                Our Work
               </Link>
             </li>
             <li>
@@ -56,11 +56,6 @@ export default function Footer() {
             <li>
               <a href={site.phoneHref} className="hover:text-cream">
                 {site.phoneDisplay}
-              </a>
-            </li>
-            <li>
-              <a href={`mailto:${site.email}`} className="hover:text-cream">
-                {site.email}
               </a>
             </li>
             <li>{site.address}</li>

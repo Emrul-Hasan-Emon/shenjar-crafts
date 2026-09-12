@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { site } from "@/data/site";
+import { LanguageProvider } from "@/lib/i18n";
 
 const heading = Playfair_Display({
   variable: "--font-heading",
@@ -28,12 +27,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${heading.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-ink font-sans">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

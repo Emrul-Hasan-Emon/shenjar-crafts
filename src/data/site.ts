@@ -34,7 +34,8 @@ export const vision =
 export const commitment =
   "At Shenjar Crafts, we believe that every home and space is unique. Our goal is to understand each customer's needs and transform their ideas into durable, practical, and attractive furniture and living spaces.";
 
-export const aboutParagraphs = [
+/** Fallback paragraphs shown only if the admin hasn't set About Us content in Supabase yet. */
+export const defaultAboutParagraphs = [
   "Shenjar Crafts is a creative and craftsmanship-focused company specializing in wonder furniture, interior and exterior solutions, house wiring, and customized furniture. We combine practical design, quality craftsmanship, and customer preferences to create products and spaces that are both functional and visually appealing.",
   "Our furniture service includes custom-made chairs, tables, beds, and other furniture items, designed according to the customer's specific requirements, measurements, style, and purpose. Whether it is a modern, traditional, minimalist, or completely personalized design, Shenjar Crafts aims to turn ideas into beautifully crafted furniture.",
   "Alongside customized furniture, we provide interior and exterior work to enhance residential and commercial spaces. We also offer house wiring solutions, focusing on organized and practical electrical installations for homes and other spaces.",

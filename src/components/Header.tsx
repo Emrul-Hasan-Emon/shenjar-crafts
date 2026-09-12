@@ -6,15 +6,38 @@ import { useState } from "react";
 import Container from "./Container";
 import Logo from "./Logo";
 import { site } from "@/data/site";
+import { useLanguage } from "@/lib/i18n";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/products", label: "Products" },
-  { href: "/portfolio", label: "Portfolio" },
+  { href: "/our-work", label: "Our Work" },
   { href: "/contact", label: "Contact" },
 ];
+
+function LanguageToggle({ className = "" }: { className?: string }) {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div className={`flex items-center rounded-full border border-navy/15 p-0.5 text-xs font-semibold ${className}`}>
+      <button
+        type="button"
+        onClick={() => setLang("en")}
+        className={`rounded-full px-2.5 py-1 transition-colors ${lang === "en" ? "bg-navy text-cream" : "text-navy"}`}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        onClick={() => setLang("bn")}
+        className={`rounded-full px-2.5 py-1 transition-colors ${lang === "bn" ? "bg-navy text-cream" : "text-navy"}`}
+      >
+        বাং
+      </button>
+    </div>
+  );
+}
 
 export default function Header() {
   const pathname = usePathname();
@@ -44,6 +67,7 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <LanguageToggle />
           <a
             href={site.phoneHref}
             className="rounded-full border border-navy/15 px-5 py-2.5 text-sm font-semibold text-navy transition-colors hover:border-navy/30 hover:bg-navy/5"
@@ -86,6 +110,7 @@ export default function Header() {
       {open ? (
         <div className="border-t border-border bg-cream md:hidden">
           <Container className="flex flex-col gap-1 py-4">
+            <LanguageToggle className="mb-2 w-fit" />
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}

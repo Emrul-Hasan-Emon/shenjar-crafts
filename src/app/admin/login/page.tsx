@@ -1,0 +1,73 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@server/supabase/client";
+
+export default function AdminLoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (signInError) {
+      setError(signInError.message);
+      return;
+    }
+    router.replace("/admin");
+    router.refresh();
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-cream-dark/30 px-6">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm rounded-2xl border border-border bg-white p-8 shadow-sm"
+      >
+        <h1 className="font-display text-xl font-semibold text-navy">Admin Login</h1>
+        <p className="mt-1 text-sm text-ink-soft">Shenjar Crafts content management</p>
+
+        <div className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-navy">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-navy">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-6 w-full rounded-full bg-wood px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-60"
+        >
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
+      </form>
+    </div>
+  );
+}

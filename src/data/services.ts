@@ -7,6 +7,13 @@ export type Service = {
   description: string;
   items: string[];
   icon: IconKey;
+  /**
+   * Category names (matched case-insensitively against live Supabase
+   * categories at render time — not ids/slugs, so this stays valid even if
+   * an admin edits categories later). A service only shows a "See Our Work"
+   * link when a match currently has raw_media items.
+   */
+  workCategories?: string[];
 };
 
 export const services: Service[] = [
@@ -30,6 +37,7 @@ export const services: Service[] = [
       "Special-purpose Furniture",
       "Custom-designed furniture projects",
     ],
+    workCategories: ["Cabinet", "Table", "Storage"],
   },
   {
     slug: "wonder-creative-furniture",
@@ -46,6 +54,7 @@ export const services: Service[] = [
       "Unusual shapes & materials on request",
       "Space-specific problem solving",
     ],
+    workCategories: ["Cabinet", "Table"],
   },
   {
     slug: "interior-solutions",
@@ -65,6 +74,7 @@ export const services: Service[] = [
       "Space Optimization",
       "Interior Finishing & Installation",
     ],
+    workCategories: ["Interior Design"],
   },
   {
     slug: "exterior-solutions",
@@ -138,6 +148,7 @@ export const services: Service[] = [
       "Multi-trade project coordination",
       "Fitting & finishing work",
     ],
+    workCategories: ["Rack"],
   },
   {
     slug: "custom-project-solutions",
