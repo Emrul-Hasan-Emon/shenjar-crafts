@@ -14,6 +14,8 @@ const NAV_LINKS = [
   { href: "/services", label: "Services" },
   { href: "/products", label: "Products" },
   { href: "/our-work", label: "Our Work" },
+  // "Design Studio" nav link hidden by request — page still exists at
+  // /design-studio, just not linked anywhere, until we revisit it.
   { href: "/contact", label: "Contact" },
 ];
 

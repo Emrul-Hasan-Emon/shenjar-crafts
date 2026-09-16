@@ -1,0 +1,147 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { createClient } from "@server/supabase/client";
+import { createMaterial, deleteMaterial } from "@server/materials/materials";
+import type { Material } from "@server/materials/types";
+import Spinner from "@/components/Spinner";
+
+export default function MaterialsManager({ materials }: { materials: Material[] }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleCreate(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const form = new FormData(e.currentTarget);
+      const nameEn = String(form.get("name_en") ?? "").trim();
+      if (!nameEn) throw new Error("Name is required");
+      await createMaterial(createClient(), {
+        name_en: nameEn,
+        name_bn: String(form.get("name_bn") ?? "").trim() || null,
+        description_en: String(form.get("description_en") ?? "").trim() || null,
+        description_bn: String(form.get("description_bn") ?? "").trim() || null,
+        unit: String(form.get("unit") ?? "piece").trim() || "piece",
+        unit_price: Number(form.get("unit_price") ?? 0),
+      });
+      (e.target as HTMLFormElement).reset();
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create material");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!window.confirm("Delete this material?")) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await deleteMaterial(createClient(), id);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete material");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <form onSubmit={handleCreate} className="rounded-2xl border border-border bg-white p-6">
+        <h2 className="font-display text-lg font-semibold text-navy">Add a material</h2>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-navy">Name (English) *</label>
+            <input name="name_en" required className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-navy">Name (Bangla) — optional</label>
+            <input name="name_bn" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-navy">Unit</label>
+            <input
+              name="unit"
+              defaultValue="piece"
+              placeholder="piece, pair, set..."
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-navy">Unit Price (৳) *</label>
+            <input
+              name="unit_price"
+              type="number"
+              step="any"
+              min="0"
+              required
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-navy">Description (English) — optional</label>
+            <textarea name="description_en" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
+            <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+          </div>
+        </div>
+        {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+        >
+          {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
+          {busy ? "Creating..." : "Add material"}
+        </button>
+      </form>
+
+      <div className="overflow-x-auto rounded-2xl border border-border bg-white">
+        <table className="w-full min-w-[500px] text-left text-sm">
+          <thead className="border-b border-border bg-cream-dark/40 text-xs font-semibold tracking-wide text-ink-soft uppercase">
+            <tr>
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Unit</th>
+              <th className="px-4 py-3">Unit Price</th>
+              <th className="px-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {materials.map((m) => (
+              <tr key={m.id} className="border-b border-border last:border-0">
+                <td className="px-4 py-3 font-semibold text-navy">{m.name_en}</td>
+                <td className="px-4 py-3">{m.unit}</td>
+                <td className="px-4 py-3">৳{m.unit_price.toFixed(2)}</td>
+                <td className="px-4 py-3">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => handleDelete(m.id)}
+                    className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {materials.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-ink-soft">
+                  No materials yet.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

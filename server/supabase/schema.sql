@@ -231,6 +231,167 @@ create table if not exists spend_images (
 create index if not exists spend_images_finance_record_id_idx on spend_images (finance_record_id);
 
 -- ---------------------------------------------------------------------------
+-- Craft Design: boards, materials, and a standalone bill-of-materials module
+-- ---------------------------------------------------------------------------
+-- Entirely separate from Finance — a Craft Design may optionally reference a
+-- Project (finance_record_id) purely for "which order is this for" navigation,
+-- but nothing here ever writes back into finance_records. See
+-- server/craft-design/ and server/boards/ for the code that reads/writes these.
+--
+-- name_en/name_bn + description_en/description_bn follow the same bilingual
+-- convention already used on categories/photocards/raw_media — for the
+-- admin's own bilingual data entry, since this module is never public-facing.
+
+-- Admin-managed catalogs. Exactly one row in each may be is_default = true
+-- (enforced by the partial unique indexes below) — the fallback a part uses
+-- when it doesn't override color/thickness itself.
+create table if not exists board_colors (
+  id uuid primary key default gen_random_uuid(),
+  name_en text not null,
+  name_bn text,
+  description_en text,
+  description_bn text,
+  is_default boolean not null default false,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists board_thicknesses (
+  id uuid primary key default gen_random_uuid(),
+  value_mm numeric not null,
+  is_default boolean not null default false,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists board_colors_default_idx on board_colors (is_default) where is_default;
+create unique index if not exists board_thicknesses_default_idx on board_thicknesses (is_default) where is_default;
+
+-- A board = one specific color+thickness combination — by explicit design,
+-- there is only ever one board per combo, so no separate board "type/name"
+-- table is needed; color+thickness alone identify which priced board applies.
+create table if not exists boards (
+  id uuid primary key default gen_random_uuid(),
+  name_en text,
+  name_bn text,
+  description_en text,
+  description_bn text,
+  color_id uuid not null references board_colors (id),
+  thickness_id uuid not null references board_thicknesses (id),
+  sheet_length_inches numeric not null default 0,
+  sheet_length_shuta numeric not null default 0,
+  sheet_width_inches numeric not null default 0,
+  sheet_width_shuta numeric not null default 0,
+  price_per_sheet numeric not null,
+  wastage_percent numeric not null default 10,
+  created_at timestamptz not null default now(),
+  unique (color_id, thickness_id)
+);
+
+create table if not exists materials (
+  id uuid primary key default gen_random_uuid(),
+  name_en text not null,
+  name_bn text,
+  description_en text,
+  description_bn text,
+  unit text not null default 'piece',
+  unit_price numeric not null,
+  created_at timestamptz not null default now()
+);
+
+-- Admin-managed catalog of measurement labels (side, top, bottom, front, back,
+-- and anything added later) — a real table with its own admin CRUD screen,
+-- not a fixed list.
+create table if not exists measurement_label (
+  id uuid primary key default gen_random_uuid(),
+  name_en text not null,
+  name_bn text,
+  description_en text,
+  description_bn text,
+  default_quantity integer not null default 1,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- The dimension fields a measurement label needs — a variable-length list per
+-- label (2 for depth+length, 3 for length+width+depth, etc). Which of these
+-- count toward the board-area calculation is chosen per part instance below,
+-- not baked into the label itself.
+create table if not exists measurement_label_dimensions (
+  id uuid primary key default gen_random_uuid(),
+  measurement_label_id uuid not null references measurement_label (id) on delete cascade,
+  label_en text not null,
+  label_bn text,
+  description_en text,
+  description_bn text,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists measurement_label_dimensions_label_id_idx on measurement_label_dimensions (measurement_label_id);
+
+-- Standalone module root. finance_record_id is a nullable *reference only* —
+-- never involved in any cost sync. quantity = how many complete units of this
+-- whole design are being built (distinct from a part's own quantity, e.g.
+-- Side's left+right count).
+create table if not exists crafts_designs (
+  id uuid primary key default gen_random_uuid(),
+  finance_record_id uuid references finance_records (id) on delete set null,
+  name_en text not null,
+  name_bn text,
+  description_en text,
+  description_bn text,
+  quantity integer not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists crafts_designs_set_updated_at on crafts_designs;
+create trigger crafts_designs_set_updated_at
+  before update on crafts_designs
+  for each row execute function set_updated_at();
+
+-- One row per measurement label included in this design. color_id/thickness_id
+-- are per-part *overrides*; null means "use whichever catalog row is marked
+-- is_default".
+create table if not exists craft_design_measurement_label (
+  id uuid primary key default gen_random_uuid(),
+  crafts_design_id uuid not null references crafts_designs (id) on delete cascade,
+  measurement_label_id uuid not null references measurement_label (id),
+  color_id uuid references board_colors (id),
+  thickness_id uuid references board_thicknesses (id),
+  quantity integer not null default 1,
+  created_at timestamptz not null default now(),
+  unique (crafts_design_id, measurement_label_id)
+);
+
+-- The actual measurement values — one row per dimension field the label
+-- defines. counts_toward_area is set here, per instance: both true when there
+-- are only 2 dimensions; admin picks exactly 2 to flag true when there are 3+.
+create table if not exists craft_design_measurement_label_dimensions (
+  id uuid primary key default gen_random_uuid(),
+  craft_design_measurement_label_id uuid not null references craft_design_measurement_label (id) on delete cascade,
+  measurement_label_dimension_id uuid not null references measurement_label_dimensions (id),
+  value_inches numeric not null default 0,
+  value_shuta numeric not null default 0,
+  counts_toward_area boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (craft_design_measurement_label_id, measurement_label_dimension_id)
+);
+
+create table if not exists craft_design_materials (
+  id uuid primary key default gen_random_uuid(),
+  crafts_design_id uuid not null references crafts_designs (id) on delete cascade,
+  material_id uuid not null references materials (id),
+  quantity numeric not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists craft_design_measurement_label_design_id_idx on craft_design_measurement_label (crafts_design_id);
+create index if not exists craft_design_measurement_label_dimensions_part_id_idx on craft_design_measurement_label_dimensions (craft_design_measurement_label_id);
+create index if not exists craft_design_materials_design_id_idx on craft_design_materials (crafts_design_id);
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security: anyone can read, only an authenticated user can write
 -- ---------------------------------------------------------------------------
 
@@ -289,6 +450,33 @@ drop policy if exists "authenticated write spend_images" on spend_images;
 create policy "authenticated write spend_images" on spend_images for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
+-- Craft Design module — internal cost/pricing data, never public, same
+-- authenticated-only posture as finance_records/spend_images throughout.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'board_colors', 'board_thicknesses', 'boards', 'materials',
+    'measurement_label', 'measurement_label_dimensions',
+    'crafts_designs', 'craft_design_measurement_label',
+    'craft_design_measurement_label_dimensions', 'craft_design_materials'
+  ]
+  loop
+    execute format('alter table %I enable row level security', t);
+    execute format('drop policy if exists %I on %I', 'authenticated read ' || t, t);
+    execute format(
+      'create policy %I on %I for select using (auth.role() = ''authenticated'')',
+      'authenticated read ' || t, t
+    );
+    execute format('drop policy if exists %I on %I', 'authenticated write ' || t, t);
+    execute format(
+      'create policy %I on %I for all using (auth.role() = ''authenticated'') with check (auth.role() = ''authenticated'')',
+      'authenticated write ' || t, t
+    );
+  end loop;
+end $$;
+
 -- ---------------------------------------------------------------------------
 -- Storage: one public bucket, same read/write split
 -- ---------------------------------------------------------------------------
@@ -312,3 +500,76 @@ create policy "authenticated update media bucket" on storage.objects for update
 drop policy if exists "authenticated delete media bucket" on storage.objects;
 create policy "authenticated delete media bucket" on storage.objects for delete
   using (bucket_id = 'media' and auth.role() = 'authenticated');
+
+-- ---------------------------------------------------------------------------
+-- Craft Design calculation views — the database, not the app, does this math
+-- ---------------------------------------------------------------------------
+-- Same principle as finance_records.total_price (a GENERATED ALWAYS column):
+-- nothing here is computed by the browser. This needs a chain of views rather
+-- than a single generated column because it aggregates *across* rows (pooling
+-- every part that resolves to the same board before dividing into sheets).
+--
+-- security_invoker = true matters here: Postgres views default to running
+-- with the *owner's* rights, which would silently bypass RLS on the base
+-- tables — this makes the view respect the querying user's own permissions
+-- instead. 1 inch = 8 shuta throughout.
+
+-- Resolve each part to its board (color/thickness override, or whichever
+-- catalog row is is_default) and its per-unit area in shuta². Postgres has no
+-- PRODUCT() aggregate, so the area uses the standard exp(sum(ln(x))) trick to
+-- fold however many dimensions are flagged counts_toward_area into one
+-- product (all physical measurements are positive, so ln() is always
+-- defined).
+create or replace view craft_design_part_resolved with (security_invoker = true) as
+select
+  cdml.id as craft_design_measurement_label_id,
+  cdml.crafts_design_id,
+  cdml.quantity,
+  b.id as board_id,
+  b.wastage_percent,
+  b.price_per_sheet,
+  (b.sheet_length_inches * 8 + b.sheet_length_shuta) *
+  (b.sheet_width_inches * 8 + b.sheet_width_shuta) as sheet_area_shuta2,
+  (
+    select exp(sum(ln(d.value_inches * 8 + d.value_shuta)))
+    from craft_design_measurement_label_dimensions d
+    where d.craft_design_measurement_label_id = cdml.id
+      and d.counts_toward_area
+  ) as unit_area_shuta2
+from craft_design_measurement_label cdml
+join board_colors dc on dc.is_default
+join board_thicknesses dt on dt.is_default
+join boards b
+  on b.color_id = coalesce(cdml.color_id, dc.id)
+ and b.thickness_id = coalesce(cdml.thickness_id, dt.id);
+
+-- Pool every part resolving to the same board: total area (+ wastage) →
+-- sheets → cost. The design's own quantity multiplies in *before* the ceil()
+-- rounding — building N units' worth of area and rounding once uses sheets
+-- far more efficiently than rounding per-unit and then multiplying by N.
+create or replace view craft_design_board_costs with (security_invoker = true) as
+select
+  r.crafts_design_id,
+  r.board_id,
+  sum(r.unit_area_shuta2 * r.quantity) * cd.quantity as total_area_shuta2,
+  ceil(
+    sum(r.unit_area_shuta2 * r.quantity) * cd.quantity
+    * (1 + r.wastage_percent / 100.0) / r.sheet_area_shuta2
+  ) as sheets_needed,
+  ceil(
+    sum(r.unit_area_shuta2 * r.quantity) * cd.quantity
+    * (1 + r.wastage_percent / 100.0) / r.sheet_area_shuta2
+  ) * r.price_per_sheet as board_cost
+from craft_design_part_resolved r
+join crafts_designs cd on cd.id = r.crafts_design_id
+group by r.crafts_design_id, cd.quantity, r.board_id, r.wastage_percent, r.price_per_sheet, r.sheet_area_shuta2;
+
+-- Materials: a simple sum, scaled by the design's own quantity.
+create or replace view craft_design_material_costs with (security_invoker = true) as
+select
+  cdm.crafts_design_id,
+  sum(cdm.quantity * m.unit_price) * cd.quantity as material_cost
+from craft_design_materials cdm
+join materials m on m.id = cdm.material_id
+join crafts_designs cd on cd.id = cdm.crafts_design_id
+group by cdm.crafts_design_id, cd.quantity;
