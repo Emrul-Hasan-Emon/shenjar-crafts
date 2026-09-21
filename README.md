@@ -8,6 +8,10 @@ Supabase. There is no e-commerce/checkout yet; that is a future phase.
 This file is meant to be handed to a future Claude session (or any developer) with zero prior context, so it
 explains **how the whole system fits together**, not just "how to run it."
 
+**See also [`docs/`](./docs/README.md)** for the Craft Design costing module, Design Studio, cross-cutting
+architecture patterns, and a full database schema reference — everything built after this file was last
+substantially updated.
+
 ## Stack
 
 - Next.js 16 (App Router, Turbopack), TypeScript, Tailwind CSS v4.
