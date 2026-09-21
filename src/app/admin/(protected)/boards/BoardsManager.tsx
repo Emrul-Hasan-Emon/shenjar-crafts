@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
-import { createBoard, deleteBoard } from "@server/boards/boards";
+import { createBoard, updateBoard, deleteBoard } from "@server/boards/boards";
 import type { Board, BoardColor, BoardThickness } from "@server/boards/types";
 import Spinner from "@/components/Spinner";
 
@@ -19,17 +19,18 @@ export default function BoardsManager({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingBoard, setEditingBoard] = useState<Board | null>(null);
 
   const colorById = new Map(colors.map((c) => [c.id, c]));
   const thicknessById = new Map(thicknesses.map((t) => [t.id, t]));
 
-  async function handleCreate(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
       const form = new FormData(e.currentTarget);
-      await createBoard(createClient(), {
+      const input = {
         name_en: String(form.get("name_en") ?? "").trim() || null,
         name_bn: String(form.get("name_bn") ?? "").trim() || null,
         description_en: String(form.get("description_en") ?? "").trim() || null,
@@ -42,11 +43,18 @@ export default function BoardsManager({
         sheet_width_shuta: Number(form.get("sheet_width_shuta") ?? 0),
         price_per_sheet: Number(form.get("price_per_sheet") ?? 0),
         wastage_percent: Number(form.get("wastage_percent") ?? 10),
-      });
-      (e.target as HTMLFormElement).reset();
+      };
+      const supabase = createClient();
+      if (editingBoard) {
+        await updateBoard(supabase, editingBoard.id, input);
+        setEditingBoard(null);
+      } else {
+        await createBoard(supabase, input);
+        (e.target as HTMLFormElement).reset();
+      }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create board");
+      setError(err instanceof Error ? err.message : "Failed to save board");
     } finally {
       setBusy(false);
     }
@@ -58,6 +66,7 @@ export default function BoardsManager({
     setError(null);
     try {
       await deleteBoard(createClient(), id);
+      if (editingBoard?.id === id) setEditingBoard(null);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete board");
@@ -81,19 +90,39 @@ export default function BoardsManager({
           Add at least one Board Color and one Board Thickness above before creating a board.
         </p>
       ) : (
-        <form onSubmit={handleCreate} className="mt-4 space-y-4 rounded-xl border border-border p-4">
+        <form
+          key={editingBoard?.id ?? "new"}
+          onSubmit={handleSubmit}
+          className={`mt-4 space-y-4 rounded-xl border p-4 ${editingBoard ? "border-wood/40" : "border-border"}`}
+        >
+          {editingBoard ? (
+            <p className="text-sm font-semibold text-wood">Editing: {editingBoard.name_en || "(unnamed board)"}</p>
+          ) : null}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-navy">Name (English) — optional</label>
-              <input name="name_en" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+              <input
+                name="name_en"
+                defaultValue={editingBoard?.name_en ?? ""}
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-navy">Name (Bangla) — optional</label>
-              <input name="name_bn" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+              <input
+                name="name_bn"
+                defaultValue={editingBoard?.name_bn ?? ""}
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-navy">Color *</label>
-              <select name="color_id" required className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm">
+              <select
+                name="color_id"
+                required
+                defaultValue={editingBoard?.color_id ?? ""}
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+              >
                 <option value="" disabled>
                   Choose a color
                 </option>
@@ -106,7 +135,12 @@ export default function BoardsManager({
             </div>
             <div>
               <label className="block text-sm font-medium text-navy">Thickness *</label>
-              <select name="thickness_id" required className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm">
+              <select
+                name="thickness_id"
+                required
+                defaultValue={editingBoard?.thickness_id ?? ""}
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+              >
                 <option value="" disabled>
                   Choose a thickness
                 </option>
@@ -129,6 +163,7 @@ export default function BoardsManager({
                 min="0"
                 required
                 placeholder="Inches"
+                defaultValue={editingBoard?.sheet_length_inches ?? undefined}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm"
               />
               <input
@@ -137,7 +172,7 @@ export default function BoardsManager({
                 step="any"
                 min="0"
                 placeholder="Shuta (0-7)"
-                defaultValue={0}
+                defaultValue={editingBoard?.sheet_length_shuta ?? 0}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm"
               />
             </div>
@@ -153,6 +188,7 @@ export default function BoardsManager({
                 min="0"
                 required
                 placeholder="Inches"
+                defaultValue={editingBoard?.sheet_width_inches ?? undefined}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm"
               />
               <input
@@ -161,7 +197,7 @@ export default function BoardsManager({
                 step="any"
                 min="0"
                 placeholder="Shuta (0-7)"
-                defaultValue={0}
+                defaultValue={editingBoard?.sheet_width_shuta ?? 0}
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm"
               />
             </div>
@@ -176,6 +212,7 @@ export default function BoardsManager({
                 step="any"
                 min="0"
                 required
+                defaultValue={editingBoard?.price_per_sheet ?? undefined}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
               />
             </div>
@@ -186,7 +223,7 @@ export default function BoardsManager({
                 type="number"
                 step="any"
                 min="0"
-                defaultValue={10}
+                defaultValue={editingBoard?.wastage_percent ?? 10}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
               />
             </div>
@@ -194,23 +231,44 @@ export default function BoardsManager({
 
           <div>
             <label className="block text-sm font-medium text-navy">Description (English) — optional</label>
-            <textarea name="description_en" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <textarea
+              name="description_en"
+              rows={2}
+              defaultValue={editingBoard?.description_en ?? ""}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
-            <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <textarea
+              name="description_bn"
+              rows={2}
+              defaultValue={editingBoard?.description_bn ?? ""}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
           </div>
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
-          >
-            {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
-            {busy ? "Creating..." : "Create board"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={busy}
+              className="inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+            >
+              {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
+              {busy ? "Saving..." : editingBoard ? "Save changes" : "Create board"}
+            </button>
+            {editingBoard ? (
+              <button
+                type="button"
+                onClick={() => setEditingBoard(null)}
+                className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-navy"
+              >
+                Cancel
+              </button>
+            ) : null}
+          </div>
         </form>
       )}
 
@@ -240,14 +298,24 @@ export default function BoardsManager({
                 <td className="px-4 py-3">৳{b.price_per_sheet.toFixed(2)}</td>
                 <td className="px-4 py-3">{b.wastage_percent}%</td>
                 <td className="px-4 py-3">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => handleDelete(b.id)}
-                    className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => setEditingBoard(b)}
+                      className="text-xs font-semibold text-navy hover:underline disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => handleDelete(b.id)}
+                      className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

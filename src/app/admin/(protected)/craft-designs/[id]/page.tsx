@@ -9,7 +9,8 @@ import { listMeasurementLabels } from "@server/craft-design/measurement-labels/m
 import { listBoardColors } from "@server/boards/colors";
 import { listBoardThicknesses } from "@server/boards/thicknesses";
 import { listMaterials } from "@server/materials/materials";
-import DesignQuantityForm from "./DesignQuantityForm";
+import { listFinanceRecords } from "@server/db/finance";
+import EditDesignForm from "./EditDesignForm";
 import PartsManager from "./PartsManager";
 import MaterialsSection from "./MaterialsSection";
 import CostBreakdownPanel from "./CostBreakdownPanel";
@@ -20,7 +21,7 @@ export default async function CraftDesignDetailPage({ params }: { params: Promis
   const design = await getCraftsDesignById(supabase, id);
   if (!design) notFound();
 
-  const [parts, materials, breakdown, labels, colors, thicknesses, materialCatalog] = await Promise.all([
+  const [parts, materials, breakdown, labels, colors, thicknesses, materialCatalog, projects] = await Promise.all([
     listCraftDesignParts(supabase, id),
     listCraftDesignMaterials(supabase, id),
     getCraftDesignCostBreakdown(supabase, id),
@@ -28,6 +29,7 @@ export default async function CraftDesignDetailPage({ params }: { params: Promis
     listBoardColors(supabase),
     listBoardThicknesses(supabase),
     listMaterials(supabase),
+    listFinanceRecords(supabase, { type: "project" }),
   ]);
 
   return (
@@ -50,8 +52,8 @@ export default async function CraftDesignDetailPage({ params }: { params: Promis
         </Link>
       </div>
 
-      <div className="mt-6 max-w-xs">
-        <DesignQuantityForm designId={design.id} quantity={design.quantity} />
+      <div className="mt-6">
+        <EditDesignForm design={design} projects={projects.map((p) => ({ id: p.id, name: p.name }))} />
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">

@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { createClient } from "@server/supabase/server-client";
 import { listMeasurementLabels } from "@server/craft-design/measurement-labels/measurementLabels";
 import CreateMeasurementLabelForm from "./CreateMeasurementLabelForm";
+import MeasurementLabelCard from "./MeasurementLabelCard";
 
 export default async function MeasurementLabelsPage() {
   const supabase = await createClient();
@@ -21,15 +21,7 @@ export default async function MeasurementLabelsPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {labels.map((label) => (
-          <Link
-            key={label.id}
-            href={`/admin/measurement-labels/${label.id}`}
-            className="rounded-2xl border border-border bg-white p-5 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
-          >
-            <p className="font-display text-lg font-semibold text-navy">{label.name_en}</p>
-            <p className="mt-1 text-sm text-ink-soft">Default quantity: {label.default_quantity}</p>
-            <p className="mt-3 text-sm font-semibold text-wood">Manage dimensions →</p>
-          </Link>
+          <MeasurementLabelCard key={label.id} label={label} />
         ))}
         {labels.length === 0 ? <p className="text-sm text-ink-soft">No measurement labels yet.</p> : null}
       </div>

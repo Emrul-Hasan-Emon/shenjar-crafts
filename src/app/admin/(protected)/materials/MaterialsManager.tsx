@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
-import { createMaterial, deleteMaterial } from "@server/materials/materials";
+import { createMaterial, updateMaterial, deleteMaterial } from "@server/materials/materials";
 import type { Material } from "@server/materials/types";
 import Spinner from "@/components/Spinner";
 
@@ -11,8 +11,9 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
 
-  async function handleCreate(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     setError(null);
@@ -20,18 +21,25 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
       const form = new FormData(e.currentTarget);
       const nameEn = String(form.get("name_en") ?? "").trim();
       if (!nameEn) throw new Error("Name is required");
-      await createMaterial(createClient(), {
+      const input = {
         name_en: nameEn,
         name_bn: String(form.get("name_bn") ?? "").trim() || null,
         description_en: String(form.get("description_en") ?? "").trim() || null,
         description_bn: String(form.get("description_bn") ?? "").trim() || null,
         unit: String(form.get("unit") ?? "piece").trim() || "piece",
         unit_price: Number(form.get("unit_price") ?? 0),
-      });
-      (e.target as HTMLFormElement).reset();
+      };
+      const supabase = createClient();
+      if (editingMaterial) {
+        await updateMaterial(supabase, editingMaterial.id, input);
+        setEditingMaterial(null);
+      } else {
+        await createMaterial(supabase, input);
+        (e.target as HTMLFormElement).reset();
+      }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create material");
+      setError(err instanceof Error ? err.message : "Failed to save material");
     } finally {
       setBusy(false);
     }
@@ -43,6 +51,7 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
     setError(null);
     try {
       await deleteMaterial(createClient(), id);
+      if (editingMaterial?.id === id) setEditingMaterial(null);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete material");
@@ -53,22 +62,37 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleCreate} className="rounded-2xl border border-border bg-white p-6">
-        <h2 className="font-display text-lg font-semibold text-navy">Add a material</h2>
+      <form
+        key={editingMaterial?.id ?? "new"}
+        onSubmit={handleSubmit}
+        className={`rounded-2xl border bg-white p-6 ${editingMaterial ? "border-wood/40" : "border-border"}`}
+      >
+        <h2 className="font-display text-lg font-semibold text-navy">
+          {editingMaterial ? `Editing: ${editingMaterial.name_en}` : "Add a material"}
+        </h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-navy">Name (English) *</label>
-            <input name="name_en" required className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <input
+              name="name_en"
+              required
+              defaultValue={editingMaterial?.name_en ?? ""}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-navy">Name (Bangla) — optional</label>
-            <input name="name_bn" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <input
+              name="name_bn"
+              defaultValue={editingMaterial?.name_bn ?? ""}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-navy">Unit</label>
             <input
               name="unit"
-              defaultValue="piece"
+              defaultValue={editingMaterial?.unit ?? "piece"}
               placeholder="piece, pair, set..."
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
             />
@@ -81,27 +105,49 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
               step="any"
               min="0"
               required
+              defaultValue={editingMaterial?.unit_price ?? undefined}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
             />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-navy">Description (English) — optional</label>
-            <textarea name="description_en" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <textarea
+              name="description_en"
+              rows={2}
+              defaultValue={editingMaterial?.description_en ?? ""}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
-            <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <textarea
+              name="description_bn"
+              rows={2}
+              defaultValue={editingMaterial?.description_bn ?? ""}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
+            />
           </div>
         </div>
         {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-        <button
-          type="submit"
-          disabled={busy}
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
-        >
-          {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
-          {busy ? "Creating..." : "Add material"}
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            type="submit"
+            disabled={busy}
+            className="inline-flex items-center gap-2 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+          >
+            {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
+            {busy ? "Saving..." : editingMaterial ? "Save changes" : "Add material"}
+          </button>
+          {editingMaterial ? (
+            <button
+              type="button"
+              onClick={() => setEditingMaterial(null)}
+              className="rounded-full border border-border px-5 py-2 text-sm font-semibold text-navy"
+            >
+              Cancel
+            </button>
+          ) : null}
+        </div>
       </form>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-white">
@@ -121,14 +167,24 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
                 <td className="px-4 py-3">{m.unit}</td>
                 <td className="px-4 py-3">৳{m.unit_price.toFixed(2)}</td>
                 <td className="px-4 py-3">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => handleDelete(m.id)}
-                    className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => setEditingMaterial(m)}
+                      className="text-xs font-semibold text-navy hover:underline disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => handleDelete(m.id)}
+                      className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
