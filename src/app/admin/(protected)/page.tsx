@@ -31,17 +31,17 @@ export default async function AdminDashboard() {
         Manage everything shown on the live site from here.
       </p>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {cards.map((card) => (
           <Link
             key={card.label}
             href={card.href}
-            className="rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
+            className="rounded-2xl border border-border bg-white p-4 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-6"
           >
-            <p className="text-sm font-semibold tracking-wide text-wood uppercase">{card.label}</p>
-            <p className="mt-2 font-display text-3xl font-bold text-navy">
+            <p className="text-xs font-semibold tracking-wide text-wood uppercase sm:text-sm">{card.label}</p>
+            <p className="mt-2 font-display text-2xl font-bold text-navy sm:text-3xl">
               {card.count}
-              {card.hint ? <span className="ml-2 text-sm font-normal text-ink-soft">{card.hint}</span> : null}
+              {card.hint ? <span className="ml-2 text-xs font-normal text-ink-soft sm:text-sm">{card.hint}</span> : null}
             </p>
           </Link>
         ))}

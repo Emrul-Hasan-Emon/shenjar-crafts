@@ -153,7 +153,7 @@ export default function DesignStudioCanvas() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-      <div className="rounded-2xl border border-border bg-white p-5 sm:p-6">
+      <div className="rounded-lg border border-border bg-white p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-display text-lg font-semibold text-navy">1. Show us your idea — optional</h3>
           <div className="flex shrink-0 gap-1 rounded-full bg-cream-dark p-1">
@@ -274,7 +274,7 @@ export default function DesignStudioCanvas() {
           type="button"
           onClick={handleGenerate}
           disabled={busy}
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy disabled:opacity-50"
         >
           {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
           {busy ? "Generating..." : "Generate image"}
@@ -290,7 +290,7 @@ export default function DesignStudioCanvas() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-border bg-white p-5 sm:p-6">
+      <div className="rounded-lg border border-border bg-white p-5 sm:p-6">
         <h3 className="font-display text-lg font-semibold text-navy">Result</h3>
         <div className="mt-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-navy/20 bg-cream-dark/30">
           {busy ? (
@@ -314,7 +314,7 @@ export default function DesignStudioCanvas() {
               href={site.whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light"
+              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy"
             >
               Message Us About This Design
             </a>

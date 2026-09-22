@@ -12,6 +12,8 @@ explains **how the whole system fits together**, not just "how to run it."
 architecture patterns, and a full database schema reference — everything built after this file was last
 substantially updated.
 
+For the current public-site appearance and responsive behavior, see [UI Design & Responsive Changes](docs/ui-design.md).
+
 ## Stack
 
 - Next.js 16 (App Router, Turbopack), TypeScript, Tailwind CSS v4.

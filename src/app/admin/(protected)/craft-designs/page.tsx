@@ -24,7 +24,7 @@ export default async function CraftDesignsPage() {
         <CreateCraftsDesignForm projects={projects.map((p) => ({ id: p.id, name: p.name }))} />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {designs.map((design) => (
           <CraftDesignCard key={design.id} design={design} />
         ))}

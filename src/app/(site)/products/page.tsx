@@ -1,7 +1,7 @@
+import PageIntro from "@/components/PageIntro";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Container from "@/components/Container";
-import SectionHeading from "@/components/SectionHeading";
 import ProductsGrid, { type ProductGridCategory, type ProductGridItem } from "@/components/ProductsGrid";
 import CTABand from "@/components/CTABand";
 import { createClient } from "@server/supabase/server-client";
@@ -12,7 +12,7 @@ import { getPublicUrl } from "@server/supabase/storage";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Products",
+  title: "Our Craft",
   description:
     "Browse custom furniture, storage, and interior pieces made by Shenjar Crafts in Dhaka — bedside cabinets, dressing tables, bookshelves, wall racks, and more.",
 };
@@ -54,15 +54,10 @@ export default async function ProductsPage() {
 
   return (
     <>
-      <section className="py-16 sm:py-20">
+      <PageIntro eyebrow="Our Craft" title="Made for your space. Made to be yours." description="Explore furniture and interior pieces, then make a design your own in size, material, and finish." />
+      <section className="py-6 sm:py-10 lg:py-12">
         <Container>
-          <SectionHeading
-            eyebrow="What We Can Build"
-            title="Products"
-            description="A look at furniture and interior pieces we design and build — share one as a reference or ask for a fully custom size, color, and finish."
-            align="center"
-          />
-          <div className="mt-12">
+<div className="min-w-0">
             <Suspense fallback={null}>
               <ProductsGrid items={items} categories={gridCategories} />
             </Suspense>

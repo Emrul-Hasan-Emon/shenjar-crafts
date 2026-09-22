@@ -115,10 +115,10 @@ export default function MeasurementLabelCard({ label }: { label: MeasurementLabe
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-white p-5">
-      <p className="font-display text-lg font-semibold text-navy">{label.name_en}</p>
-      <p className="mt-1 text-sm text-ink-soft">Default quantity: {label.default_quantity}</p>
-      <div className="mt-3 flex items-center justify-between gap-3">
+    <div className="rounded-2xl border border-border bg-white p-4 sm:p-5">
+      <p className="font-display text-base font-semibold text-navy sm:text-lg">{label.name_en}</p>
+      <p className="mt-1 text-xs text-ink-soft sm:text-sm">Default quantity: {label.default_quantity}</p>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
         <Link href={`/admin/measurement-labels/${label.id}`} className="text-sm font-semibold text-wood hover:underline">
           Manage dimensions →
         </Link>

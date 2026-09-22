@@ -35,14 +35,16 @@ export default function AdminNav({
   return (
     <>
       {/* Mobile top bar */}
-      <header className="border-b border-border bg-white print:hidden md:hidden">
-        <div className="flex items-center justify-between gap-4 px-6 py-4">
+      <header className="sticky top-0 z-40 border-b border-border bg-white print:hidden md:hidden">
+        <div className="flex items-center justify-between gap-4 px-4 py-2">
           <Link href="/admin" className="font-display text-lg font-bold text-navy">
             Shenjar Admin
           </Link>
           <button
             type="button"
-            aria-label="Toggle menu"
+            aria-label={open ? "Close admin menu" : "Open admin menu"}
+            aria-expanded={open}
+            aria-controls="admin-mobile-navigation"
             onClick={() => setOpen((v) => !v)}
             className="flex h-10 w-10 items-center justify-center rounded-md text-navy"
           >
@@ -64,8 +66,8 @@ export default function AdminNav({
         </div>
 
         {open ? (
-          <div className="border-t border-border bg-white">
-            <div className="flex flex-col gap-1 px-6 py-4">
+          <div id="admin-mobile-navigation" className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-white">
+            <div className="grid grid-cols-2 gap-2 px-4 py-3">
               {NAV.map((item) => (
                 <Link
                   key={item.href}
@@ -78,7 +80,7 @@ export default function AdminNav({
                   {item.label}
                 </Link>
               ))}
-              <div className="mt-2 flex items-center justify-between gap-3 border-t border-border pt-4 text-sm text-ink-soft">
+              <div className="col-span-2 mt-2 flex items-center justify-between gap-3 border-t border-border pt-4 text-sm text-ink-soft">
                 {userEmail ? <span className="truncate">{userEmail}</span> : <span />}
                 <form action={signOutAction}>
                   <button
@@ -89,7 +91,7 @@ export default function AdminNav({
                   </button>
                 </form>
               </div>
-              <Link href="/" onClick={() => setOpen(false)} className="mt-1 text-sm text-wood hover:underline">
+              <Link href="/" onClick={() => setOpen(false)} className="col-span-2 mt-1 text-sm text-wood hover:underline">
                 View site
               </Link>
             </div>
@@ -98,7 +100,7 @@ export default function AdminNav({
       </header>
 
       {/* Desktop sidebar */}
-      <aside className="hidden shrink-0 border-r border-border bg-white print:hidden md:flex md:w-60 md:flex-col">
+      <aside className="sticky top-0 h-dvh hidden shrink-0 border-r border-border bg-white print:hidden md:flex md:w-60 md:flex-col">
         <div className="border-b border-border px-5 py-5">
           <Link href="/admin" className="font-display text-lg font-bold text-navy">
             Shenjar Admin

@@ -3,21 +3,14 @@ import { site } from "@/data/site";
 
 export default function CTABand() {
   return (
-    <section className="py-16 sm:py-20">
+    <section className="py-8 sm:py-16">
       <Container>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy to-navy-light px-8 py-14 text-center sm:px-16">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.06]"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 1px, transparent 16px)",
-            }}
-          />
-          <div className="relative flex flex-col items-center gap-6">
+        <div className="relative overflow-hidden rounded-2xl border border-wood-light/30 bg-gradient-to-br from-navy to-ink-dark px-5 py-8 text-center sm:px-16 sm:py-14">
+          <div className="relative flex flex-col items-center gap-4 sm:gap-6">
             <h2 className="font-display max-w-xl text-2xl font-semibold text-cream sm:text-3xl">
-              Have a design or project in mind?
+              A piece that belongs in your space.
             </h2>
-            <p className="max-w-xl text-cream/70">
+            <p className="max-w-xl text-sm leading-relaxed text-cream/80 sm:text-base">
               From a single custom piece to a complete interior and
               electrical project — tell us what you need and we&apos;ll
               bring it to life.
@@ -27,10 +20,10 @@ export default function CTABand() {
                 href={site.whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-wood px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-wood-light sm:px-7 sm:py-3 sm:text-sm"
+                className="rounded-full bg-wood px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-navy sm:px-7 sm:py-3 sm:text-sm"
               >
                 <span className="sm:hidden">WhatsApp</span>
-                <span className="hidden sm:inline">Message on WhatsApp</span>
+                <span className="hidden sm:inline">Discuss Your Project</span>
               </a>
               <a
                 href={site.phoneHref}

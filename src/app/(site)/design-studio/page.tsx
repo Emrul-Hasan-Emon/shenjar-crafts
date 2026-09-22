@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function DesignStudioPage() {
   return (
-    <section className="py-16 sm:py-20">
+    <section className="py-8 sm:py-14 lg:py-20">
       <Container>
         <SectionHeading
           eyebrow="Try It Yourself"
@@ -19,7 +19,7 @@ export default function DesignStudioPage() {
           description="Draw a rough sketch of the furniture or space you have in mind, add a few details, and get an AI-generated concept image back — a starting point for your custom order."
           align="center"
         />
-        <div className="mt-12">
+        <div className="mt-5 sm:mt-10">
           <DesignStudioCanvas />
         </div>
       </Container>

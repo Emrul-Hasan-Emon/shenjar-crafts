@@ -103,13 +103,13 @@ export default function BannersManager({
       {initialBanners.length === 0 ? (
         <p className="text-sm text-ink-soft">No banners yet — add one above.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {initialBanners.map((banner, i) => (
             <div key={banner.id} className="overflow-hidden rounded-2xl border border-border bg-white">
               <div className="relative aspect-[16/7] w-full bg-cream-dark/40">
                 <Image src={banner.url} alt="" fill sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover" />
               </div>
-              <div className="flex items-center justify-between gap-2 p-3">
+              <div className="flex items-center justify-between gap-2 p-2 sm:p-3">
                 <div className="flex gap-1">
                   <button
                     type="button"

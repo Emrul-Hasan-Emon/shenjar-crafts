@@ -53,12 +53,13 @@ export default function ProductsGrid({
 
   return (
     <div>
-      <div className="sticky top-20 z-30 -mx-6 bg-cream/95 px-6 py-3 backdrop-blur sm:-mx-8 sm:px-8">
-        <div className="flex flex-wrap justify-center gap-2">
+      <div className="sticky top-16 z-30 -mx-4 border-b border-border bg-cream/95 px-4 py-2 backdrop-blur sm:-mx-8 sm:px-8 xl:top-20">
+        <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:justify-center">
           <button
             type="button"
+            aria-pressed={!active}
             onClick={() => selectFilter(null)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+            className={`min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               !active ? "bg-navy text-cream" : "bg-white text-navy hover:bg-cream-dark"
             }`}
           >
@@ -68,8 +69,9 @@ export default function ProductsGrid({
             <button
               key={category.slug}
               type="button"
+              aria-pressed={active?.slug === category.slug}
               onClick={() => selectFilter(category.slug)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                 active?.slug === category.slug
                   ? "bg-navy text-cream"
                   : "bg-white text-navy hover:bg-cream-dark"
@@ -86,7 +88,7 @@ export default function ProductsGrid({
           No products in this category yet — check back soon.
         </p>
       ) : (
-        <div className="mt-8 columns-2 gap-3 sm:mt-10 sm:gap-6 lg:columns-3">
+        <div className="mt-4 columns-2 gap-3 sm:mt-6 sm:gap-6 lg:columns-3">
           {visible.map((product) => {
             const categoryName = pickLocalized(product.categoryName, product.categoryNameBn, lang);
             const name = pickLocalized(product.name, product.nameBn, lang);
@@ -95,7 +97,7 @@ export default function ProductsGrid({
                 type="button"
                 key={product.id}
                 onClick={() => setSelected(product)}
-                className="group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-2xl border border-border bg-white text-left transition-shadow duration-300 hover:shadow-[0_20px_40px_-24px_rgba(22,41,74,0.25)] sm:mb-6"
+                className="studio-card group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-2xl border border-border bg-white text-left transition-shadow duration-300 sm:mb-6"
               >
                 <span className="absolute top-2 left-2 z-10 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-navy uppercase shadow-sm backdrop-blur sm:top-4 sm:left-4 sm:px-3 sm:py-1 sm:text-xs">
                   {categoryName}
@@ -106,8 +108,8 @@ export default function ProductsGrid({
                     alt={name || categoryName}
                     width={product.width}
                     height={product.height}
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    sizes="(min-width: 1024px) 33vw, 50vw"
+                    className="aspect-square w-full object-cover sm:aspect-auto sm:h-auto transition-transform duration-500 group-hover:scale-[1.02]"
                   />
                 ) : (
                   <div className="relative aspect-[4/3] w-full">
@@ -115,7 +117,7 @@ export default function ProductsGrid({
                       src={product.imageUrl}
                       alt={name || categoryName}
                       fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      sizes="(min-width: 1024px) 33vw, 50vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                     />
                   </div>

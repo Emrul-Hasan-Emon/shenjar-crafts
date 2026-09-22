@@ -46,28 +46,28 @@ export default async function AdminFinancePage() {
       <h1 className="font-display text-2xl font-semibold text-navy">Finance</h1>
       <p className="mt-1 text-sm text-ink-soft">Track projects (income) and spends (costs).</p>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Link
           href="/admin/finance/projects"
-          className="rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
+          className="rounded-2xl border border-border bg-white p-4 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-6"
         >
-          <p className="text-sm font-semibold tracking-wide text-wood uppercase">Projects</p>
-          <p className="mt-2 font-display text-3xl font-bold text-navy">{projects.length}</p>
+          <p className="text-xs font-semibold tracking-wide text-wood uppercase sm:text-sm">Projects</p>
+          <p className="mt-2 font-display text-2xl font-bold text-navy sm:text-3xl">{projects.length}</p>
         </Link>
         <Link
           href="/admin/finance/spends"
-          className="rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
+          className="rounded-2xl border border-border bg-white p-4 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-6"
         >
-          <p className="text-sm font-semibold tracking-wide text-wood uppercase">Spends</p>
-          <p className="mt-2 font-display text-3xl font-bold text-navy">{spends.length}</p>
+          <p className="text-xs font-semibold tracking-wide text-wood uppercase sm:text-sm">Spends</p>
+          <p className="mt-2 font-display text-2xl font-bold text-navy sm:text-3xl">{spends.length}</p>
         </Link>
-        <div className="rounded-2xl border border-border bg-white p-6">
-          <p className="text-sm font-semibold tracking-wide text-wood uppercase">Total Income (Projects)</p>
-          <p className="mt-2 font-display text-3xl font-bold text-navy">৳{totalIncome.toFixed(2)}</p>
+        <div className="rounded-2xl border border-border bg-white p-4 sm:p-6">
+          <p className="text-xs font-semibold tracking-wide text-wood uppercase sm:text-sm">Total Income (Projects)</p>
+          <p className="mt-2 font-display text-2xl font-bold text-navy sm:text-3xl">৳{totalIncome.toFixed(2)}</p>
         </div>
-        <div className="rounded-2xl border border-border bg-white p-6">
-          <p className="text-sm font-semibold tracking-wide text-wood uppercase">Total Spend</p>
-          <p className="mt-2 font-display text-3xl font-bold text-navy">৳{totalSpend.toFixed(2)}</p>
+        <div className="rounded-2xl border border-border bg-white p-4 sm:p-6">
+          <p className="text-xs font-semibold tracking-wide text-wood uppercase sm:text-sm">Total Spend</p>
+          <p className="mt-2 font-display text-2xl font-bold text-navy sm:text-3xl">৳{totalSpend.toFixed(2)}</p>
         </div>
       </div>
 

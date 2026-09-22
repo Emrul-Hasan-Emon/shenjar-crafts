@@ -65,7 +65,7 @@ export default function CategoryTabs({
             >
               + Add photocard to this category
             </Link>
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
               {photocards.map((p) => (
                 <PhotocardCard key={p.id} item={p} categories={categories} onDelete={handleDeletePhotocard} />
               ))}
@@ -82,7 +82,7 @@ export default function CategoryTabs({
             >
               + Add raw media to this category
             </Link>
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
               {rawMedia.map((m) => (
                 <RawMediaCard key={m.id} item={m} categories={categories} onDelete={handleDeleteRawMedia} />
               ))}

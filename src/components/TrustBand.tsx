@@ -21,8 +21,8 @@ const PILLARS = [
     ),
   },
   {
-    title: "Direct Workshop Pricing",
-    description: "No showroom markup — straight from our craftsmen.",
+    title: "From Our Workshop",
+    description: "Work directly with the people who craft your piece.",
     icon: (
       <path d="M12 3v18m0-18c-2.5 0-4.5 1-4.5 3s2 3 4.5 3 4.5 1 4.5 3-2 3-4.5 3m0-18c1.7 0 3.2.6 4 1.5M12 15c-1.7 0-3.2-.6-4-1.5" />
     ),
@@ -31,8 +31,7 @@ const PILLARS = [
 
 export default function TrustBand() {
   return (
-    <section className="relative overflow-hidden bg-ink-dark py-12 sm:py-16 lg:py-20">
-      <div className="pointer-events-none absolute top-0 left-1/2 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-wood/10 blur-3xl" />
+    <section className="relative overflow-hidden bg-ink-dark py-8 sm:py-16 lg:py-20">
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold tracking-[0.2em] text-wood-light uppercase">
@@ -43,7 +42,7 @@ export default function TrustBand() {
           </h2>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:mt-14 sm:gap-8 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:mt-14 sm:gap-8 lg:grid-cols-4">
           {PILLARS.map((pillar) => (
             <div key={pillar.title} className="text-center">
               <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-wood-light sm:h-14 sm:w-14">

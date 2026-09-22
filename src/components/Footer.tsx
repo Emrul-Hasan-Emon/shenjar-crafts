@@ -6,8 +6,8 @@ import { site } from "@/data/site";
 export default function Footer() {
   return (
     <footer className="bg-navy text-cream">
-      <Container className="grid grid-cols-3 gap-4 py-10 sm:gap-10 sm:py-14">
-        <div>
+      <Container className="grid grid-cols-2 gap-6 py-8 sm:grid-cols-3 sm:gap-10 sm:py-14">
+        <div className="col-span-2 sm:col-span-1">
           <Logo dark />
           <p className="mt-3 max-w-xs text-[11px] leading-relaxed text-cream/70 sm:mt-4 sm:text-sm">
             {site.tagline} Custom furniture, interior, exterior, and
@@ -21,27 +21,27 @@ export default function Footer() {
           </h3>
           <ul className="mt-3 space-y-2 text-xs text-cream/80 sm:mt-4 sm:text-sm">
             <li>
-              <Link href="/about" className="hover:text-cream">
+              <Link href="/about" className="inline-flex min-h-9 items-center hover:text-cream">
                 About Us
               </Link>
             </li>
             <li>
-              <Link href="/services" className="hover:text-cream">
+              <Link href="/services" className="inline-flex min-h-9 items-center hover:text-cream">
                 Services
               </Link>
             </li>
             <li>
-              <Link href="/products" className="hover:text-cream">
-                Products
+              <Link href="/products" className="inline-flex min-h-9 items-center hover:text-cream">
+                Our Craft
               </Link>
             </li>
             <li>
-              <Link href="/our-work" className="hover:text-cream">
-                Our Work
+              <Link href="/our-work" className="inline-flex min-h-9 items-center hover:text-cream">
+                Projects
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-cream">
+              <Link href="/contact" className="inline-flex min-h-9 items-center hover:text-cream">
                 Contact
               </Link>
             </li>
@@ -54,7 +54,7 @@ export default function Footer() {
           </h3>
           <ul className="mt-3 space-y-2 text-xs text-cream/80 sm:mt-4 sm:text-sm">
             <li>
-              <a href={site.phoneHref} className="hover:text-cream">
+              <a href={site.phoneHref} className="inline-flex min-h-9 items-center hover:text-cream">
                 {site.phoneDisplay}
               </a>
             </li>
@@ -64,7 +64,7 @@ export default function Footer() {
                 href={site.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-cream"
+                className="inline-flex min-h-9 items-center hover:text-cream"
               >
                 Facebook Page
               </a>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { site } from "@/data/site";
 import { pickLocalized, useLanguage } from "@/lib/i18n";
@@ -25,31 +25,38 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
   const { lang } = useLanguage();
   const [showOrderOptions, setShowOrderOptions] = useState(false);
 
+  const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    const dialog = dialogRef.current;
+    const previousOverflow = document.body.style.overflow;
+    dialog?.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   const title = pickLocalized(item.title, item.titleBn, lang);
   const description = pickLocalized(item.description, item.descriptionBn, lang);
   const whatsappMessage = title
-    ? `Hi, I'm interested in ordering: ${title}`
-    : "Hi, I'm interested in ordering this item.";
+    ? `Hi, I'd like to discuss a custom piece inspired by: ${title}`
+    : "Hi, I'd like to discuss a custom piece inspired by this design.";
   const whatsappHref = `${site.whatsappHref}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-ink-dark/70 p-4"
-      onClick={onClose}
+    <dialog
+      ref={dialogRef}
+      aria-label={title || "Product details"}
+      onCancel={onClose}
+      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100vw-2rem)] max-w-lg overflow-y-auto rounded-lg bg-white p-0 shadow-2xl backdrop:bg-ink-dark/70"
+      onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-2xl"
       >
-        <div className="relative aspect-[4/3] w-full bg-cream-dark/40">
+        <div className="relative aspect-[4/3] max-h-[45dvh] w-full bg-cream-dark/40">
           {item.kind === "video" ? (
             <video src={item.imageUrl} controls autoPlay className="h-full w-full bg-ink-dark object-contain" />
           ) : (
@@ -65,7 +72,7 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-navy shadow-sm transition-colors hover:bg-white"
+            className="absolute top-3 right-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-navy shadow-sm transition-colors hover:bg-white"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -73,7 +80,7 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {title ? <h3 className="font-display text-lg font-semibold text-navy">{title}</h3> : null}
           {description ? (
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p>
@@ -83,9 +90,9 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
             <button
               type="button"
               onClick={() => setShowOrderOptions(true)}
-              className="mt-5 w-full rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light"
+              className="mt-5 w-full rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy"
             >
-              Order Now
+              Discuss This Piece
             </button>
           ) : (
             <div className="mt-5">
@@ -97,7 +104,7 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
                   href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700"
+                  className="flex items-center justify-center gap-2 rounded-full bg-navy px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy-light"
                 >
                   WhatsApp
                 </a>
@@ -105,7 +112,7 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
                   href={site.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                  className="flex items-center justify-center gap-2 rounded-full bg-wood px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy"
                 >
                   Facebook
                 </a>
@@ -114,6 +121,6 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
           )}
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

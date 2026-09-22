@@ -27,7 +27,7 @@ export default function CategoryTiles({ tiles }: { tiles: CategoryTile[] }) {
           <Link
             key={tile.slug}
             href={tile.href}
-            className="group relative block aspect-[4/5] overflow-hidden rounded-2xl shadow-[0_20px_45px_-24px_rgba(12,21,38,0.45)]"
+            className="studio-card group relative block aspect-square sm:aspect-[4/5] overflow-hidden rounded-2xl"
           >
             {tile.imageUrl ? (
               <Image
@@ -35,7 +35,7 @@ export default function CategoryTiles({ tiles }: { tiles: CategoryTile[] }) {
                 alt={title}
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
             ) : (
               <div className="absolute inset-0">
@@ -45,8 +45,8 @@ export default function CategoryTiles({ tiles }: { tiles: CategoryTile[] }) {
             <div className="absolute inset-0 bg-gradient-to-t from-ink-dark/90 via-ink-dark/10 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5">
               <p className="font-display text-sm font-semibold text-white sm:text-lg">{title}</p>
-              <p className="mt-1 hidden text-xs text-white/70 sm:block">{subtitle}</p>
-              <span className="mt-3 hidden items-center gap-1 text-xs font-semibold text-wood-light opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:inline-flex">
+              <p className="mt-1 text-xs leading-snug text-white/85">{subtitle}</p>
+              <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-wood-light">
                 Explore
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

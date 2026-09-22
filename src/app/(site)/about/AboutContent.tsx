@@ -18,9 +18,9 @@ export default function AboutContent({
     : fallbackParagraphs;
 
   return (
-    <div className="mt-8 max-w-3xl space-y-5">
+    <div className="mt-4 max-w-3xl space-y-4 sm:mt-8 sm:space-y-5">
       {paragraphs.map((paragraph, i) => (
-        <p key={i} className="text-base leading-relaxed text-ink-soft sm:text-lg">
+        <p key={i} className="text-sm leading-relaxed text-ink-soft sm:text-lg">
           {paragraph}
         </p>
       ))}

@@ -14,6 +14,7 @@ reference for the full database schema.
 
 | Doc | Covers |
 |---|---|
+| [`ui-design.md`](./ui-design.md) | Current public visual theme, homepage and inner-page redesign, responsive behavior, shared components, accessibility notes, and verification checklist. |
 | [`architecture.md`](./architecture.md) | Cross-cutting patterns used everywhere in this codebase: no server API layer, Row Level Security, Postgres-enforced money math (generated columns + views), the bilingual content convention, and the admin CRUD UI pattern. Read this to understand *why* the code looks the way it does before changing any of it. |
 | [`schema.md`](./schema.md) | The full Supabase/Postgres schema, one reference, organized by module — every table, its columns, relationships, RLS policy, and (for Craft Design) the calculation views. Source of truth is always [`server/supabase/schema.sql`](../server/supabase/schema.sql); this doc explains it in prose. |
 | [`craft-design.md`](./craft-design.md) | The Craft Design costing module — Boards, Materials, Measurement Labels, and Craft Designs. The largest feature built after the initial site: given a furniture piece's measurements, it works out how many board sheets are needed and the total material + board cost, entirely server/database-computed. Includes the data model rationale, the calculation pipeline, and the admin UI. |
@@ -34,6 +35,8 @@ reference for the full database schema.
    Edit/Delete UI completed for every Craft Design catalog (Boards, Colors, Thicknesses, Materials,
    Measurement Labels, Measurement Label Dimensions, Craft Designs) to match the CRUD pattern already used
    elsewhere in the admin panel.
+
+6. **Premium public UI redesign (September 2026)** — richer navy/cream/gold styling, redesigned homepage hero and content flow, matching About/Services/Our Craft/Projects/Contact pages, and responsive/accessibility refinements. See [`ui-design.md`](./ui-design.md).
 
 ## Quick module map
 

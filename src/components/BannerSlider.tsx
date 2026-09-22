@@ -39,7 +39,7 @@ export default function BannerSlider({
 
   return (
     <div
-      className={`relative w-full overflow-hidden rounded-3xl shadow-[0_30px_60px_-20px_rgba(22,41,74,0.25)] ${className}`}
+      className={`relative w-full overflow-hidden rounded-xl ${className}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

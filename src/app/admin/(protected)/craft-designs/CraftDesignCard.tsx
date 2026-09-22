@@ -26,12 +26,12 @@ export default function CraftDesignCard({ design }: { design: CraftsDesignWithPr
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-white p-5 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]">
+    <div className="rounded-2xl border border-border bg-white p-4 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-5">
       <Link href={`/admin/craft-designs/${design.id}`}>
-        <p className="font-display text-lg font-semibold text-navy">{design.name_en}</p>
-        <p className="mt-1 text-sm text-ink-soft">Quantity: {design.quantity}</p>
+        <p className="font-display text-base font-semibold text-navy sm:text-lg">{design.name_en}</p>
+        <p className="mt-1 text-xs text-ink-soft sm:text-sm">Quantity: {design.quantity}</p>
         {design.project_name ? (
-          <span className="mt-2 inline-block rounded-full bg-wood-soft px-3 py-1 text-xs font-semibold text-wood">
+          <span className="mt-2 inline-block truncate rounded-full bg-wood-soft px-3 py-1 text-xs font-semibold text-wood max-w-full">
             Project: {design.project_name}
           </span>
         ) : null}

@@ -27,22 +27,22 @@ export default async function AdminCategoriesPage() {
         Create categories here, then attach photocards and raw media to them.
       </p>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {categories.map((category) => (
           <Link
             key={category.id}
             href={`/admin/categories/${category.id}`}
-            className="flex items-center gap-4 rounded-2xl border border-border bg-white p-4 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)]"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-white p-3 transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:gap-4 sm:p-4"
           >
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-cream-dark/40">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-cream-dark/40 sm:h-16 sm:w-16">
               {category.banner_path ? (
                 <Image src={getPublicUrl(supabase, category.banner_path)} alt="" fill sizes="64px" className="object-cover" />
               ) : null}
             </div>
-            <div>
-              <p className="font-semibold text-navy">{category.name_en}</p>
-              {category.name_bn ? <p className="text-xs text-ink-soft">{category.name_bn}</p> : null}
-              <p className="mt-1 text-xs text-ink-soft">
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-navy">{category.name_en}</p>
+              {category.name_bn ? <p className="truncate text-xs text-ink-soft">{category.name_bn}</p> : null}
+              <p className="mt-1 truncate text-xs text-ink-soft">
                 {photocardCount.get(category.id) ?? 0} photocard(s) &middot;{" "}
                 {rawMediaCount.get(category.id) ?? 0} raw media
               </p>

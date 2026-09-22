@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import Container from "@/components/Container";
-import SectionHeading from "@/components/SectionHeading";
+import PageIntro from "@/components/PageIntro";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -29,7 +29,13 @@ function ContactIcon({ path }: { path: ReactElement }) {
 
 const CONTACT_CARDS = [
   {
-    label: "Call or WhatsApp",
+    label: "WhatsApp",
+    value: "Discuss your project",
+    href: site.whatsappHref,
+    icon: <path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.4 8.4 0 013.8-.9h.5a8.5 8.5 0 018 8v.5z" />,
+  },
+  {
+    label: "Call the Workshop",
     value: site.phoneDisplay,
     href: site.phoneHref,
     icon: <path d="M2.25 6.75c0 8.284 6.716 15 15 15h1.5a2.25 2.25 0 002.25-2.25v-1.5a1 1 0 00-.8-.98l-4-.8a1 1 0 00-1 .27l-1 1a13 13 0 01-6.15-6.15l1-1a1 1 0 00.27-1l-.8-4a1 1 0 00-.98-.8h-1.5A2.25 2.25 0 002.25 6.75z" />,
@@ -50,23 +56,20 @@ const CONTACT_CARDS = [
 
 export default function ContactPage() {
   return (
-    <section className="py-16 sm:py-20">
+    <>
+    <PageIntro eyebrow="Let’s Talk" title="Every great piece starts with a conversation." description="Share your ideas, measurements, or a reference you love. Let’s work out what fits your space." />
+    <section className="py-6 sm:py-10 lg:py-12">
       <Container>
-        <SectionHeading
-          eyebrow="Get In Touch"
-          title="Let's Build Something Together"
-          description="Send us your project details — measurements, ideas, reference photos — and we'll get back to you."
-          align="center"
-        />
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-4">
+
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {CONTACT_CARDS.map((card) => (
             <a
               key={card.label}
               href={card.href}
               target={card.href.startsWith("http") ? "_blank" : undefined}
               rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="rounded-2xl border border-border bg-white p-4 text-center transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_-28px_rgba(22,41,74,0.3)] sm:p-6"
+              className="studio-card rounded-2xl border border-border bg-white/80 p-4 text-center transition-all sm:p-6"
             >
               <span className="mx-auto flex h-9 w-9 items-center justify-center rounded-xl bg-wood-soft text-wood sm:h-11 sm:w-11">
                 <ContactIcon path={card.icon} />
@@ -79,33 +82,40 @@ export default function ContactPage() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <div className="contact-consultation mt-6 rounded-2xl border border-border bg-cream-dark/50 p-5 sm:p-8">
+          <p className="text-xs font-semibold tracking-widest text-wood uppercase">A little inspiration goes a long way</p>
+          <h2 className="font-display mt-2 text-2xl font-semibold text-navy">Tell us what you have in mind.</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-soft">Send a photo of your space, approximate measurements, and any designs or finishes you like. We can discuss the details together.</p>
+        <div className="mt-5 grid grid-cols-2 items-center gap-3 sm:max-w-xl">
           <a
             href={site.whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full rounded-full bg-wood px-8 py-3 text-center text-sm font-semibold text-cream transition-colors hover:bg-wood-light sm:w-auto"
+            className="w-full rounded-full bg-wood px-3 py-3 text-center text-xs sm:px-8 sm:text-sm font-semibold text-cream transition-colors hover:bg-navy sm:w-auto"
           >
             Message on WhatsApp
           </a>
           <a
             href={site.phoneHref}
-            className="w-full rounded-full bg-navy px-8 py-3 text-center text-sm font-semibold text-cream transition-colors hover:bg-navy-light sm:w-auto"
+            className="w-full rounded-full bg-navy px-3 py-3 text-center text-xs sm:px-8 sm:text-sm font-semibold text-cream transition-colors hover:bg-navy-light sm:w-auto"
           >
             Call {site.phoneDisplay}
           </a>
         </div>
 
-        <div className="mt-14 overflow-hidden rounded-2xl border border-border shadow-sm">
+        </div>
+
+        <div className="mt-6 overflow-hidden sm:mt-12 rounded-2xl border border-border shadow-sm">
           <iframe
             title="Shenjar Crafts location"
             src={site.mapEmbedSrc}
-            className="h-80 w-full"
+            className="h-56 w-full sm:h-80"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
       </Container>
     </section>
+    </>
   );
 }

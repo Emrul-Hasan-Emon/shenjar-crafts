@@ -12,8 +12,8 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
-  { href: "/products", label: "Products" },
-  { href: "/our-work", label: "Our Work" },
+  { href: "/products", label: "Our Craft" },
+  { href: "/our-work", label: "Projects" },
   // "Design Studio" nav link hidden by request — page still exists at
   // /design-studio, just not linked anywhere, until we revisit it.
   { href: "/contact", label: "Contact" },
@@ -25,15 +25,17 @@ function LanguageToggle({ className = "" }: { className?: string }) {
     <div className={`flex items-center rounded-full border border-navy/15 p-0.5 text-xs font-semibold ${className}`}>
       <button
         type="button"
+        aria-pressed={lang === "en"}
         onClick={() => setLang("en")}
-        className={`rounded-full px-2.5 py-1 transition-colors ${lang === "en" ? "bg-navy text-cream" : "text-navy"}`}
+        className={`min-h-9 rounded-full px-2.5 py-1 transition-colors ${lang === "en" ? "bg-navy text-cream" : "text-navy"}`}
       >
         EN
       </button>
       <button
         type="button"
+        aria-pressed={lang === "bn"}
         onClick={() => setLang("bn")}
-        className={`rounded-full px-2.5 py-1 transition-colors ${lang === "bn" ? "bg-navy text-cream" : "text-navy"}`}
+        className={`min-h-9 rounded-full px-2.5 py-1 transition-colors ${lang === "bn" ? "bg-navy text-cream" : "text-navy"}`}
       >
         বাং
       </button>
@@ -46,17 +48,18 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-cream/90 backdrop-blur">
-      <Container className="flex h-20 items-center justify-between">
+    <header className="sticky top-0 z-50 border-b border-border bg-cream/95 backdrop-blur">
+      <Container className="flex h-16 items-center justify-between gap-3 xl:h-20">
         <Logo />
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-5 xl:flex">
           {NAV_LINKS.map((link) => {
             const active =
               link.href === "/" ? pathname === "/" : pathname?.startsWith(link.href);
             return (
               <Link
                 key={link.href}
+                aria-current={active ? "page" : undefined}
                 href={link.href}
                 className={`text-sm font-medium transition-colors hover:text-wood ${
                   active ? "text-wood" : "text-navy"
@@ -68,7 +71,7 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 xl:flex">
           <LanguageToggle />
           <a
             href={site.phoneHref}
@@ -80,17 +83,19 @@ export default function Header() {
             href={site.whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-wood px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-wood/20 transition-colors hover:bg-wood-light"
+            className="rounded-full bg-wood px-5 py-2.5 text-sm font-semibold text-white  transition-colors hover:bg-navy"
           >
-            WhatsApp
+            Let’s Talk
           </a>
         </div>
 
         <button
           type="button"
-          aria-label="Toggle menu"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          aria-controls="mobile-navigation"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-md text-navy md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-md text-navy xl:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -110,15 +115,16 @@ export default function Header() {
       </Container>
 
       {open ? (
-        <div className="border-t border-border bg-cream md:hidden">
-          <Container className="flex flex-col gap-1 py-4">
-            <LanguageToggle className="mb-2 w-fit" />
+        <div id="mobile-navigation" className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-cream xl:hidden">
+          <Container className="grid grid-cols-2 gap-2 py-3">
+            <LanguageToggle className="col-span-2 mb-1 w-fit" />
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-navy hover:bg-cream-dark"
+                aria-current={pathname === link.href ? "page" : undefined}
+                className={`rounded-xl px-3 py-3 text-sm font-medium ${pathname === link.href ? "bg-navy text-cream" : "bg-white/60 text-navy hover:bg-cream-dark"}`}
               >
                 {link.label}
               </Link>
@@ -127,7 +133,7 @@ export default function Header() {
               href={site.whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 rounded-full bg-wood px-5 py-2.5 text-center text-sm font-semibold text-white"
+              className="col-span-2 mt-2 rounded-full bg-wood px-5 py-2.5 text-center text-sm font-semibold text-white"
             >
               WhatsApp: {site.phoneDisplay}
             </a>

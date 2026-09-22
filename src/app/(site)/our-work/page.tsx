@@ -1,7 +1,7 @@
+import PageIntro from "@/components/PageIntro";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Container from "@/components/Container";
-import SectionHeading from "@/components/SectionHeading";
 import OurWorkGrid, { type OurWorkCategory, type OurWorkItem } from "@/components/OurWorkGrid";
 import CTABand from "@/components/CTABand";
 import { createClient } from "@server/supabase/server-client";
@@ -55,15 +55,10 @@ export default async function OurWorkPage() {
 
   return (
     <>
-      <section className="py-16 sm:py-20">
+      <PageIntro eyebrow="Projects" title="Real spaces. Thoughtful craftsmanship." description="A closer look at the furniture, interiors, and details brought to life by our workshop." />
+      <section className="py-6 sm:py-10 lg:py-12">
         <Container>
-          <SectionHeading
-            eyebrow="Our Work"
-            title="Real projects, real workmanship"
-            description="A selection of furniture, interior, exterior, and electrical projects straight from our workshop and job sites."
-            align="center"
-          />
-          <div className="mt-12">
+<div className="min-w-0">
             <Suspense fallback={null}>
               <OurWorkGrid items={items} categories={gridCategories} />
             </Suspense>

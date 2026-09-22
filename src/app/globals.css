@@ -59,3 +59,104 @@ body {
 .animate-marquee {
   animation: marquee 28s linear infinite;
 }
+
+/* Shared interaction and accessibility defaults. */
+:focus-visible { outline: 3px solid var(--color-wood); outline-offset: 4px; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), select { cursor: pointer; }
+[id] { scroll-margin-top: 6rem; }
+@media (max-width: 639px) {
+  input, select, textarea { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* The public studio uses a quieter palette than the internal workspace. */
+.studio-theme {
+  --color-cream: #f7efdf;
+  --color-cream-dark: #ebdcc3;
+  --color-wood-soft: #efdbb8;
+  --color-navy: #162b3c;
+  --color-navy-light: #28475b;
+  --color-wood: #995d32;
+  --color-wood-light: #d9b77c;
+  --color-ink: #162b3c;
+  --color-ink-soft: #686052;
+  --color-ink-dark: #102330;
+  --color-border: #ddcfb9;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.studio-theme .font-display { letter-spacing: -0.025em; text-wrap: balance; }
+.studio-theme ::selection { background: #efdbb8; color: #162b3c; }
+
+/* Expressive public studio, with compact mobile proportions. */
+.hero-stage { background: radial-gradient(ellipse at 85% 20%, #2d4b56 0, transparent 65%), #102b3b; color: #faf2e3; padding: 20px 0 26px; }
+.hero-composition { display: grid; grid-template-columns: 1.04fr 1fr; grid-template-rows: auto auto; gap: 18px 44px; }
+.hero-heading { grid-column: 2; grid-row: 1; align-self: end; padding-top: 14px; }
+.hero-eyebrow { color: #dfbc83; font-size: 10px; letter-spacing: .16em; font-weight: 600; margin-bottom: 18px; }
+.hero-heading h1 { font-size: clamp(38px, 4.2vw, 60px); line-height: 1.06; font-weight: 600; }
+.hero-heading em { color: #e8c48a; }
+.hero-visual { grid-column: 1; grid-row: 1 / 3; min-width: 0; display: flex; flex-direction: column; border: 1px solid #e8c48a40; border-radius: 18px; padding: 7px; background: #ffffff08; box-shadow: 0 20px 50px #0003; }
+.hero-banner { flex: 1; min-height: 300px; border-radius: 12px; background: #d3c4ab; }
+.hero-image-caption { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 13px 8px 6px; font-size: 10px; letter-spacing: .06em; color: #dfc7a0; }
+.hero-image-caption a { color: #fff4e2; padding: 5px 0; letter-spacing: 0; font-size: 12px; }
+.hero-details { grid-column: 2; grid-row: 2; padding-bottom: 8px; }
+.hero-intro { max-width: 32rem; font-size: 16px; line-height: 1.7; color: #f6eddfcc; }
+.hero-promises { margin-top: 16px; display: grid; gap: 10px; font-size: 13px; color: #f6eddfd9; }
+.hero-promises li { display: flex; gap: 10px; align-items: baseline; }
+.hero-promises li::before { content: "✦"; color: #dfbc83; font-size: 10px; }
+.hero-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.hero-actions a { display: inline-flex; align-items: center; justify-content: center; gap: 16px; border-radius: 8px; min-height: 46px; padding: 12px 18px; font-size: 12px; font-weight: 600; transition: background .2s, transform .2s; }
+.hero-primary { color: #172c39; background: #e6bd7b; box-shadow: 0 6px 20px #0002; }
+.hero-primary:hover { background: #f4d6a6; transform: translateY(-2px); }
+.hero-secondary { color: #fff1dd; border: 1px solid #ffffff40; }
+.hero-secondary:hover { background: #ffffff12; }
+.hero-signature { border-top: 1px solid #ffffff20; margin-top: 24px; padding-top: 16px; display: flex; justify-content: space-between; gap: 8px; font-size: 9px; letter-spacing: .1em; color: #d9c7a9; }
+.specialties-strip { padding: 14px 0; border-bottom: 1px solid #d9bf9840; background: #eddfc5; color: #674627; font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+.specialties-strip span span { color: #a77740; margin-right: 8px; }
+.collection-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+.collection-heading > a { flex-shrink: 0; }
+.studio-card, .collection-piece { box-shadow: 0 8px 24px #162b3c0c; transition: box-shadow .25s, transform .25s; }
+.studio-card:hover, .collection-piece:hover { box-shadow: 0 15px 35px #162b3c18; transform: translateY(-3px); }
+.commission-section { background: linear-gradient(135deg, #f1e1c8, #f9f1e5); border-block: 1px solid #ddcfb9; }
+.commission-steps li { display: flex; gap: 16px; padding: 20px; border: 1px solid #b3946030; border-radius: 12px; background: #fff9ef90; }
+.step-number { color: #a97742; font-size: 32px; line-height: 1; }
+@media (max-width: 1023px) {
+ .hero-composition { gap: 14px; grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+ .hero-heading { grid-column: 1; grid-row: 1; padding: 0; }
+ .hero-visual { grid-column: 1; grid-row: 2; }
+ .hero-details { grid-column: 1; grid-row: 3; }
+ .hero-heading h1 { font-size: clamp(34px, 6vw, 52px); }
+ .hero-banner { min-height: 0; aspect-ratio: 2 / 1; flex: auto; }
+ .hero-eyebrow { margin-bottom: 10px; font-size: 9px; }
+ .hero-stage { padding: 16px 0 20px; }
+ .hero-intro { font-size: 14px; line-height: 1.5; }
+ .hero-promises { margin-top: 10px; gap: 6px; font-size: 12px; }
+ .hero-actions { margin-top: 16px; }
+ .hero-signature { margin-top: 16px; padding-top: 12px; }
+}
+@media (max-width: 639px) {
+ .hero-image-caption { padding: 7px 4px 2px; font-size: 8px; }
+ .hero-image-caption a { font-size: 10px; }
+ .hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+ .hero-actions a { font-size: 11px; padding: 10px 8px; gap: 6px; }
+ .hero-signature { font-size: 8px; letter-spacing: .04em; }
+ .specialties-strip { font-size: 10px; padding: 10px 0; }
+ .collection-heading { display: block; }
+ .commission-steps li { padding: 16px; }
+}
+
+.studio-page-intro {
+  position: relative;
+  padding: 24px 0 32px;
+  background: radial-gradient(ellipse at 90% 0%, #35525c 0, transparent 60%), #102b3b;
+  border-bottom: 3px solid #d9b77c;
+}
+.service-detail { border-top: 3px solid #c29a64; }
+@media (min-width: 640px) { .studio-page-intro { padding: 32px 0 44px; } }
