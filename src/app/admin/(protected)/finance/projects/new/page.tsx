@@ -1,10 +1,14 @@
 import { createClient } from "@server/supabase/server-client";
 import { listCategories } from "@server/db/categories";
+import { listPartners } from "@server/partners/partners";
 import FinanceRecordForm from "../../_components/FinanceRecordForm";
 
 export default async function NewProjectPage() {
   const supabase = await createClient();
-  const categories = await listCategories(supabase);
+  const [categories, { data: partners }] = await Promise.all([
+    listCategories(supabase),
+    listPartners(supabase, { isActive: true, pageSize: 200 }),
+  ]);
 
   return (
     <div>
@@ -14,6 +18,7 @@ export default async function NewProjectPage() {
         <FinanceRecordForm
           type="project"
           categories={categories.map((c) => ({ id: c.id, name: c.name_en }))}
+          partners={partners.map((p) => ({ id: p.id, name: p.name, code: p.config?.code ?? "" }))}
         />
       </div>
     </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,11 +13,14 @@ export default function SpendsTable({ spends }: { spends: FinanceRecord[] }) {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function handleDelete(spend: FinanceRecord) {
-    if (!window.confirm(`Delete "${spend.name}"? This can't be undone.`)) return;
+    if (!await confirmPanel(`Delete "${spend.name}"? This can't be undone.`)) return;
     setBusyId(spend.id);
     try {
       await deleteFinanceRecord(createClient(), spend.id);
+      notifyPanel();
       router.refresh();
+    } catch (error) {
+      notifyPanel(error instanceof Error ? error.message : "Unable to save changes. Please try again.", "error");
     } finally {
       setBusyId(null);
     }
@@ -23,7 +28,7 @@ export default function SpendsTable({ spends }: { spends: FinanceRecord[] }) {
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-border bg-white">
-      <table className="w-full min-w-[600px] text-left text-sm">
+      <table className="panel-mobile-table w-full min-w-[600px] text-left text-sm">
         <thead className="border-b border-border bg-cream-dark/40 text-xs font-semibold tracking-wide text-ink-soft uppercase">
           <tr>
             <th className="px-4 py-3">Name</th>
@@ -36,15 +41,15 @@ export default function SpendsTable({ spends }: { spends: FinanceRecord[] }) {
         <tbody>
           {spends.map((s) => (
             <tr key={s.id} className="border-b border-border last:border-0 hover:bg-cream-dark/20">
-              <td className="px-4 py-3">
+              <td data-label="Name" className="px-4 py-3"><div className="panel-cell-value">
                 <Link href={`/admin/finance/spends/${s.id}`} className="font-semibold text-navy hover:underline">
                   {s.name}
                 </Link>
-              </td>
-              <td className="px-4 py-3">{s.category}</td>
-              <td className="px-4 py-3 text-ink-soft">{s.description ?? "—"}</td>
-              <td className="px-4 py-3 font-semibold text-navy">৳{s.price.toFixed(2)}</td>
-              <td className="px-4 py-3">
+              </div></td>
+              <td data-label="Category" className="px-4 py-3"><div className="panel-cell-value">{s.category}</div></td>
+              <td data-label="Description" className="px-4 py-3 text-ink-soft"><div className="panel-cell-value">{s.description ?? "—"}</div></td>
+              <td data-label="Cost" className="px-4 py-3 font-semibold text-navy"><div className="panel-cell-value">৳{s.price.toFixed(2)}</div></td>
+              <td data-label="Actions" className="px-4 py-3"><div className="panel-cell-value">
                 <button
                   type="button"
                   disabled={busyId === s.id}
@@ -53,7 +58,7 @@ export default function SpendsTable({ spends }: { spends: FinanceRecord[] }) {
                 >
                   Delete
                 </button>
-              </td>
+              </div></td>
             </tr>
           ))}
           {spends.length === 0 ? (

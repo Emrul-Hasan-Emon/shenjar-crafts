@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -28,6 +30,7 @@ export default function CreateMeasurementLabelForm() {
         default_quantity: Number(form.get("default_quantity") ?? 1),
       });
       formRef.current?.reset();
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create measurement label");
@@ -68,7 +71,7 @@ export default function CreateMeasurementLabelForm() {
         <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
         <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
       </div>
-      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       <button
         type="submit"
         disabled={busy}

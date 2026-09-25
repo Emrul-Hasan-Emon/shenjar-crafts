@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -59,6 +61,7 @@ export default function PartCard({
         }),
         updateCraftDesignPartDimensions(supabase, dimensions),
       ]);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -68,11 +71,12 @@ export default function PartCard({
   }
 
   async function handleRemove() {
-    if (!window.confirm(`Remove "${part.measurement_label.name_en}" from this design?`)) return;
+    if (!await confirmPanel(`Remove "${part.measurement_label.name_en}" from this design?`)) return;
     setBusy(true);
     setError(null);
     try {
       await removeCraftDesignPart(createClient(), part.id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove part");
@@ -174,7 +178,7 @@ export default function PartCard({
         </div>
       </div>
 
-      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
 
       <button
         type="submit"

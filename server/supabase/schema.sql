@@ -392,6 +392,318 @@ create index if not exists craft_design_measurement_label_dimensions_part_id_idx
 create index if not exists craft_design_materials_design_id_idx on craft_design_materials (crafts_design_id);
 
 -- ---------------------------------------------------------------------------
+-- Partner Management
+-- ---------------------------------------------------------------------------
+-- Partners are a second class of Supabase Auth user (alongside the single
+-- admin account) with their own login and their own scoped view of Projects.
+-- See docs/partner-management-plan.md for the full design rationale. This
+-- block must run before the RLS section below, since several of those
+-- policies call is_admin().
+
+-- Distinguishes "the admin" from "a partner" — Supabase doesn't expose a
+-- clean role flag on auth.users, so this is a small seed table instead.
+-- Auto-seeded with every auth user that exists at migration time (today
+-- that's exactly the one admin account), so running this migration never
+-- locks the admin out of their own data. Any user created after this point
+-- (i.e. every partner) is deliberately left out.
+create table if not exists app_admins (
+  user_id uuid primary key references auth.users (id) on delete cascade
+);
+
+insert into app_admins (user_id)
+  select id from auth.users
+  on conflict (user_id) do nothing;
+
+-- security definer is required: is_admin() is the gate every other RLS
+-- policy in this file calls, so it must be able to read app_admins
+-- regardless of the caller's own privileges — otherwise a non-admin (or
+-- app_admins having RLS enabled with no policy of its own, which silently
+-- hides every row rather than erroring) makes is_admin() false for
+-- everyone, including real admins. search_path is pinned for safety, same
+-- as get_public_invoice.
+create or replace function is_admin() returns boolean as $$
+  select exists (select 1 from app_admins where user_id = auth.uid());
+$$ language sql stable security definer set search_path = public;
+
+-- Locked down now that is_admin() no longer depends on this being directly
+-- readable — only admins can see or manage the admin list itself.
+alter table app_admins enable row level security;
+drop policy if exists "admin manage app_admins" on app_admins;
+create policy "admin manage app_admins" on app_admins for all
+  using (is_admin()) with check (is_admin());
+
+-- Partner profile only. The partner code, commission/discount configuration,
+-- and cached stats live in partner_configs below — kept separate so that
+-- editing a partner's profile never touches their financial configuration.
+create table if not exists partners (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references auth.users (id) on delete cascade,
+  name text not null,
+  mobile text not null,
+  email text,
+  organization_name text,
+  institution text,
+  facebook_link text,
+  linkedin_link text,
+  profile_picture_path text,
+  is_active boolean not null default true,
+  is_default boolean not null default true,
+  created_by uuid,
+  creator_name text,
+  updated_by uuid,
+  updater_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint partners_org_or_institution check (organization_name is not null or institution is not null)
+);
+
+drop trigger if exists partners_set_updated_at on partners;
+create trigger partners_set_updated_at
+  before update on partners
+  for each row execute function set_updated_at();
+
+-- Partners log in by mobile, not email (email is optional contact info only
+-- — see server/partners/authEmail.ts for how a mobile number maps to the
+-- Supabase Auth account behind it). Mobile must therefore be unique.
+create unique index if not exists partners_mobile_idx on partners (mobile);
+
+-- One row per partner: the unique partner code, the *current* commission/
+-- discount configuration, and cached order/commission counters (kept in sync
+-- by the finance_records triggers below, not computed live on every read).
+-- Changing a partner's rate here only affects future orders — a Project
+-- already created keeps whatever finance_records recorded for it at the time
+-- (see the snapshot trigger below).
+create table if not exists partner_configs (
+  id uuid primary key default gen_random_uuid(),
+  partner_id uuid not null unique references partners (id) on delete cascade,
+  code text not null unique,
+  commission numeric not null default 0 check (commission >= 0),
+  commission_type text not null default 'fixed' check (commission_type in ('fixed', 'percentage')),
+  discount numeric not null default 0 check (discount >= 0),
+  discount_type text not null default 'fixed' check (discount_type in ('fixed', 'percentage')),
+  total_orders integer not null default 0,
+  total_delivered_orders integer not null default 0,
+  total_commission numeric not null default 0,
+  total_discount numeric not null default 0,
+  updated_by uuid,
+  updater_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists partner_configs_set_updated_at on partner_configs;
+create trigger partner_configs_set_updated_at
+  before update on partner_configs
+  for each row execute function set_updated_at();
+
+-- Creates the partners row and its partner_configs row together, in one
+-- transaction — a partner should never exist without its config (the code
+-- and commission/discount rate), so this is the only way the app creates
+-- one. security invoker (not definer): runs as the calling admin, so RLS on
+-- both tables still applies — this only guarantees atomicity.
+create or replace function create_partner(
+  p_user_id uuid,
+  p_code text,
+  p_name text,
+  p_mobile text,
+  p_email text,
+  p_organization_name text,
+  p_institution text,
+  p_facebook_link text,
+  p_linkedin_link text,
+  p_profile_picture_path text,
+  p_is_active boolean,
+  p_is_default boolean,
+  p_commission numeric,
+  p_commission_type text,
+  p_discount numeric,
+  p_discount_type text,
+  p_created_by uuid,
+  p_creator_name text
+) returns partners
+language plpgsql
+security invoker
+as $$
+declare
+  new_partner partners;
+begin
+  insert into partners (
+    user_id, name, mobile, email, organization_name, institution,
+    facebook_link, linkedin_link, profile_picture_path, is_active, is_default,
+    created_by, creator_name, updated_by, updater_name
+  ) values (
+    p_user_id, p_name, p_mobile, p_email, p_organization_name, p_institution,
+    p_facebook_link, p_linkedin_link, p_profile_picture_path, p_is_active, p_is_default,
+    p_created_by, p_creator_name, p_created_by, p_creator_name
+  )
+  returning * into new_partner;
+
+  insert into partner_configs (
+    partner_id, code, commission, commission_type, discount, discount_type,
+    updated_by, updater_name
+  ) values (
+    new_partner.id, p_code, p_commission, p_commission_type, p_discount, p_discount_type,
+    p_created_by, p_creator_name
+  );
+
+  return new_partner;
+end;
+$$;
+
+-- Partner fields on finance_records (Projects). There is no separate
+-- "commission log" table — a Project has a 1:1 relationship with its own
+-- commission/discount outcome, so that data lives directly on the row.
+-- total_price already exists (= "total amount before discount"). The three
+-- amount columns below are new and GENERATED ALWAYS — same principle as
+-- total_price itself: no client, however it connects, can supply or
+-- override them. commission_rate/commission_type/discount_rate/discount_type
+-- are a point-in-time snapshot, populated by the trigger below from
+-- partner_configs — never taken from client input — so nothing the browser
+-- sends can fabricate a more favorable rate for itself.
+alter table finance_records add column if not exists partner_id uuid references partners (id);
+alter table finance_records add column if not exists partner_code text;
+alter table finance_records add column if not exists commission_rate numeric;
+alter table finance_records add column if not exists commission_type text check (commission_type is null or commission_type in ('fixed', 'percentage'));
+alter table finance_records add column if not exists discount_rate numeric;
+alter table finance_records add column if not exists discount_type text check (discount_type is null or discount_type in ('fixed', 'percentage'));
+
+-- Postgres forbids a generated column's expression from referencing another
+-- generated column (including total_price), so these re-state
+-- "price * coalesce(quantity, 1)" inline rather than referencing total_price
+-- — it's the same value, just written out because the shortcut isn't legal.
+alter table finance_records add column if not exists discount_amount numeric generated always as (
+  case
+    when discount_type = 'fixed' then coalesce(discount_rate, 0)
+    when discount_type = 'percentage' then (price * coalesce(quantity, 1)) * coalesce(discount_rate, 0) / 100
+    else 0
+  end
+) stored;
+
+alter table finance_records add column if not exists commission_amount numeric generated always as (
+  case
+    when commission_type = 'fixed' then coalesce(commission_rate, 0)
+    when commission_type = 'percentage' then (price * coalesce(quantity, 1)) * coalesce(commission_rate, 0) / 100
+    else 0
+  end
+) stored;
+
+-- The customer-facing final amount, after the partner discount. total_price
+-- itself stays exactly what it always was ("total amount before discount").
+alter table finance_records add column if not exists total_amount numeric generated always as (
+  (price * coalesce(quantity, 1)) - (
+    case
+      when discount_type = 'fixed' then coalesce(discount_rate, 0)
+      when discount_type = 'percentage' then (price * coalesce(quantity, 1)) * coalesce(discount_rate, 0) / 100
+      else 0
+    end
+  )
+) stored;
+
+-- 'pending' until the Project is delivered ('earned'); 'unearned' is
+-- reserved for a future cancelled-type status — finance_records.status has
+-- no such value today, so that branch is currently unreachable in practice.
+alter table finance_records add column if not exists commission_status text not null default 'pending'
+  check (commission_status in ('pending', 'earned', 'unearned'));
+
+create index if not exists finance_records_partner_id_idx on finance_records (partner_id);
+
+create or replace function finance_records_apply_partner_snapshot() returns trigger as $$
+begin
+  if new.partner_id is not null then
+    select pc.code, pc.commission, pc.commission_type, pc.discount, pc.discount_type
+      into new.partner_code, new.commission_rate, new.commission_type, new.discount_rate, new.discount_type
+      from partner_configs pc
+      where pc.partner_id = new.partner_id;
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists finance_records_apply_partner_snapshot on finance_records;
+create trigger finance_records_apply_partner_snapshot
+  before insert on finance_records
+  for each row execute function finance_records_apply_partner_snapshot();
+
+-- Derives commission_status from the Project's own status, every time it's
+-- set. Runs before finance_records_apply_partner_snapshot in trigger-name
+-- order, but that's fine — this only reads new.status, not anything the
+-- snapshot trigger sets.
+create or replace function finance_records_set_commission_status() returns trigger as $$
+begin
+  new.commission_status := case
+    when new.status = 'delivered' then 'earned'
+    when new.status is null or new.status in ('pending', 'started', 'finished') then 'pending'
+    else 'unearned'
+  end;
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists finance_records_set_commission_status on finance_records;
+create trigger finance_records_set_commission_status
+  before insert or update of status on finance_records
+  for each row execute function finance_records_set_commission_status();
+
+-- Keeps partner_configs' cached counters in sync so the partner/admin
+-- dashboards read plain columns instead of re-aggregating finance_records on
+-- every page load. total_orders updates once, at creation, regardless of
+-- eventual delivery outcome — it's a count of referrals, not earnings.
+-- total_delivered_orders/total_commission/total_discount all move together,
+-- only when commission_status actually transitions into or out of 'earned':
+-- a partner's commission is only earned, and the customer's discount only
+-- "counts," once the Project is actually delivered.
+--
+-- security definer is required here, not optional: a partner has no update
+-- policy on partner_configs (only admin does, and a partner may only select
+-- their own row) — a trigger runs with the privileges of whoever performed
+-- the triggering statement unless marked security definer, so without this,
+-- a partner creating their own order would silently fail to update their
+-- own counters (the UPDATE below would match zero rows under their RLS
+-- context, no error, just a no-op). This is the same narrow, deliberate
+-- exception as get_public_invoice — the target row is fully determined by
+-- new.partner_id, which finance_records' own RLS already constrains, so
+-- this doesn't open any new write path.
+create or replace function finance_records_sync_partner_stats() returns trigger as $$
+begin
+  if TG_OP = 'INSERT' then
+    if new.partner_id is not null then
+      update partner_configs
+        set total_orders = total_orders + 1,
+            total_delivered_orders = total_delivered_orders + (case when new.commission_status = 'earned' then 1 else 0 end),
+            total_commission = total_commission + (case when new.commission_status = 'earned' then coalesce(new.commission_amount, 0) else 0 end),
+            total_discount = total_discount + (case when new.commission_status = 'earned' then coalesce(new.discount_amount, 0) else 0 end)
+        where partner_id = new.partner_id;
+    end if;
+    return new;
+  end if;
+
+  if TG_OP = 'UPDATE' and new.partner_id is not null and new.commission_status is distinct from old.commission_status then
+    if new.commission_status = 'earned' then
+      update partner_configs
+        set total_delivered_orders = total_delivered_orders + 1,
+            total_commission = total_commission + coalesce(new.commission_amount, 0),
+            total_discount = total_discount + coalesce(new.discount_amount, 0)
+        where partner_id = new.partner_id;
+    elsif old.commission_status = 'earned' then
+      update partner_configs
+        set total_delivered_orders = greatest(total_delivered_orders - 1, 0),
+            total_commission = greatest(total_commission - coalesce(new.commission_amount, 0), 0),
+            total_discount = greatest(total_discount - coalesce(new.discount_amount, 0), 0)
+        where partner_id = new.partner_id;
+    end if;
+    return new;
+  end if;
+
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public;
+
+drop trigger if exists finance_records_sync_partner_stats on finance_records;
+create trigger finance_records_sync_partner_stats
+  after insert or update on finance_records
+  for each row execute function finance_records_sync_partner_stats();
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security: anyone can read, only an authenticated user can write
 -- ---------------------------------------------------------------------------
 
@@ -405,50 +717,78 @@ drop policy if exists "public read categories" on categories;
 create policy "public read categories" on categories for select using (true);
 drop policy if exists "authenticated write categories" on categories;
 create policy "authenticated write categories" on categories for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+  using (is_admin()) with check (is_admin());
 
 drop policy if exists "public read banners" on banners;
 create policy "public read banners" on banners for select using (true);
 drop policy if exists "authenticated write banners" on banners;
 create policy "authenticated write banners" on banners for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+  using (is_admin()) with check (is_admin());
 
 drop policy if exists "public read photocards" on photocards;
 create policy "public read photocards" on photocards for select using (true);
 drop policy if exists "authenticated write photocards" on photocards;
 create policy "authenticated write photocards" on photocards for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+  using (is_admin()) with check (is_admin());
 
 drop policy if exists "public read raw_media" on raw_media;
 create policy "public read raw_media" on raw_media for select using (true);
 drop policy if exists "authenticated write raw_media" on raw_media;
 create policy "authenticated write raw_media" on raw_media for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+  using (is_admin()) with check (is_admin());
 
 drop policy if exists "public read about_us" on about_us;
 create policy "public read about_us" on about_us for select using (true);
 drop policy if exists "authenticated write about_us" on about_us;
 create policy "authenticated write about_us" on about_us for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+  using (is_admin()) with check (is_admin());
 
 -- Finance data is sensitive business/customer data, not site content — unlike
 -- every table above, it is NOT publicly readable. Only an authenticated
 -- admin session can read or write it at all.
 alter table finance_records enable row level security;
 drop policy if exists "authenticated read finance_records" on finance_records;
-create policy "authenticated read finance_records" on finance_records for select
-  using (auth.role() = 'authenticated');
+drop policy if exists "admin read finance_records" on finance_records;
+create policy "admin read finance_records" on finance_records for select
+  using (is_admin());
 drop policy if exists "authenticated write finance_records" on finance_records;
-create policy "authenticated write finance_records" on finance_records for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+drop policy if exists "admin write finance_records" on finance_records;
+create policy "admin write finance_records" on finance_records for all
+  using (is_admin()) with check (is_admin());
+
+-- A partner may read their own Projects (direct or created on their behalf
+-- by admin — both cases set partner_id the same way) but never anyone
+-- else's, and never a 'spend' row (spends aren't partner-visible at all).
+drop policy if exists "partner read own finance_records" on finance_records;
+create policy "partner read own finance_records" on finance_records for select
+  using (
+    type = 'project'
+    and exists (select 1 from partners p where p.id = finance_records.partner_id and p.user_id = auth.uid())
+  );
+
+-- A partner may create a Project for themselves only — partner_id is
+-- resolved from their own session, never trusted from the request payload
+-- beyond this check. status must start null/unset: a partner declaring
+-- their own order "delivered" at creation would instantly (and illegitimately)
+-- credit themselves commission — that transition stays admin-only. No
+-- partner update/delete at all beyond this insert.
+drop policy if exists "partner insert own finance_records" on finance_records;
+create policy "partner insert own finance_records" on finance_records for insert
+  with check (
+    type = 'project'
+    and status is null
+    and exists (select 1 from partners p where p.id = finance_records.partner_id and p.user_id = auth.uid() and p.is_active)
+  );
 
 alter table spend_images enable row level security;
 drop policy if exists "authenticated read spend_images" on spend_images;
-create policy "authenticated read spend_images" on spend_images for select
-  using (auth.role() = 'authenticated');
+drop policy if exists "admin read spend_images" on spend_images;
+create policy "admin read spend_images" on spend_images for select
+  using (is_admin());
 drop policy if exists "authenticated write spend_images" on spend_images;
-create policy "authenticated write spend_images" on spend_images for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+drop policy if exists "admin write spend_images" on spend_images;
+create policy "admin write spend_images" on spend_images for all
+  using (is_admin()) with check (is_admin());
 
 -- Craft Design module — internal cost/pricing data, never public, same
 -- authenticated-only posture as finance_records/spend_images throughout.
@@ -465,17 +805,38 @@ begin
   loop
     execute format('alter table %I enable row level security', t);
     execute format('drop policy if exists %I on %I', 'authenticated read ' || t, t);
+    execute format('drop policy if exists %I on %I', 'admin read ' || t, t);
     execute format(
-      'create policy %I on %I for select using (auth.role() = ''authenticated'')',
-      'authenticated read ' || t, t
+      'create policy %I on %I for select using (is_admin())',
+      'admin read ' || t, t
     );
     execute format('drop policy if exists %I on %I', 'authenticated write ' || t, t);
+    execute format('drop policy if exists %I on %I', 'admin write ' || t, t);
     execute format(
-      'create policy %I on %I for all using (auth.role() = ''authenticated'') with check (auth.role() = ''authenticated'')',
-      'authenticated write ' || t, t
+      'create policy %I on %I for all using (is_admin()) with check (is_admin())',
+      'admin write ' || t, t
     );
   end loop;
 end $$;
+
+-- Partner Management RLS: profile is admin-managed, but a partner may always
+-- read their own row (never anyone else's, never write it in v1 — self-edit
+-- isn't part of this feature yet).
+alter table partners enable row level security;
+drop policy if exists "admin all partners" on partners;
+create policy "admin all partners" on partners for all
+  using (is_admin()) with check (is_admin());
+drop policy if exists "partner read own row" on partners;
+create policy "partner read own row" on partners for select
+  using (user_id = auth.uid());
+
+alter table partner_configs enable row level security;
+drop policy if exists "admin all partner_configs" on partner_configs;
+create policy "admin all partner_configs" on partner_configs for all
+  using (is_admin()) with check (is_admin());
+drop policy if exists "partner read own config" on partner_configs;
+create policy "partner read own config" on partner_configs for select
+  using (exists (select 1 from partners p where p.id = partner_configs.partner_id and p.user_id = auth.uid()));
 
 -- ---------------------------------------------------------------------------
 -- Storage: one public bucket, same read/write split
@@ -490,16 +851,19 @@ create policy "public read media bucket" on storage.objects for select
   using (bucket_id = 'media');
 
 drop policy if exists "authenticated write media bucket" on storage.objects;
-create policy "authenticated write media bucket" on storage.objects for insert
-  with check (bucket_id = 'media' and auth.role() = 'authenticated');
+drop policy if exists "admin write media bucket" on storage.objects;
+create policy "admin write media bucket" on storage.objects for insert
+  with check (bucket_id = 'media' and is_admin());
 
 drop policy if exists "authenticated update media bucket" on storage.objects;
-create policy "authenticated update media bucket" on storage.objects for update
-  using (bucket_id = 'media' and auth.role() = 'authenticated');
+drop policy if exists "admin update media bucket" on storage.objects;
+create policy "admin update media bucket" on storage.objects for update
+  using (bucket_id = 'media' and is_admin());
 
 drop policy if exists "authenticated delete media bucket" on storage.objects;
-create policy "authenticated delete media bucket" on storage.objects for delete
-  using (bucket_id = 'media' and auth.role() = 'authenticated');
+drop policy if exists "admin delete media bucket" on storage.objects;
+create policy "admin delete media bucket" on storage.objects for delete
+  using (bucket_id = 'media' and is_admin());
 
 -- ---------------------------------------------------------------------------
 -- Craft Design calculation views — the database, not the app, does this math

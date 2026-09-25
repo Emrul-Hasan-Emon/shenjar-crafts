@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -8,6 +10,7 @@ import type { FinanceRecord, FinanceType } from "@server/db/finance";
 import Spinner from "@/components/Spinner";
 
 export type CategoryOption = { id: string; name: string };
+export type PartnerOption = { id: string; name: string; code: string };
 
 function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
   const str = String(value ?? "").trim();
@@ -23,10 +26,12 @@ export default function FinanceRecordForm({
   type,
   record,
   categories,
+  partners = [],
 }: {
   type: FinanceType;
   record?: FinanceRecord;
   categories: CategoryOption[];
+  partners?: PartnerOption[];
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -73,6 +78,10 @@ export default function FinanceRecordForm({
         status: isProject
           ? (optionalText(form.get("status")) as "pending" | "started" | "finished" | "delivered" | null)
           : null,
+        // Only set on create — partner_id is never editable afterward (the
+        // commission/discount snapshot is taken once, at insert time; see
+        // docs/partner-management-plan.md).
+        ...(isProject && !record ? { partner_id: optionalText(form.get("partner_id")) } : {}),
       };
 
       const isCreate = !record;
@@ -85,6 +94,7 @@ export default function FinanceRecordForm({
       } else {
         router.push(`${listPath}/${saved.id}`);
       }
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -95,12 +105,13 @@ export default function FinanceRecordForm({
 
   async function handleDelete() {
     if (!record) return;
-    if (!window.confirm(`Delete "${record.name}"? This can't be undone.`)) return;
+    if (!await confirmPanel(`Delete "${record.name}"? This can't be undone.`)) return;
     setBusy(true);
     setError(null);
     try {
       await deleteFinanceRecord(createClient(), record.id);
       router.push(listPath);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -213,6 +224,54 @@ export default function FinanceRecordForm({
           </p>
         ) : null}
       </section>
+
+      {isProject && !record ? (
+        <section className="rounded-2xl border border-border bg-white p-6">
+          <h2 className="font-display text-lg font-semibold text-navy">Partner — optional</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Creating this Project on behalf of a referral partner applies their current commission/discount
+            automatically. Leave unset for a Project with no partner.
+          </p>
+          <div className="mt-4 max-w-sm">
+            <select name="partner_id" defaultValue="" className="w-full rounded-lg border border-border px-3 py-2 text-sm">
+              <option value="">— none —</option>
+              {partners.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.code})
+                </option>
+              ))}
+            </select>
+          </div>
+        </section>
+      ) : null}
+
+      {record?.partner_id ? (
+        <section className="rounded-2xl border border-border bg-white p-6">
+          <h2 className="font-display text-lg font-semibold text-navy">Partner</h2>
+          <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">Code</p>
+              <p className="mt-1 font-semibold text-navy">{record.partner_code}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">Commission</p>
+              <p className="mt-1 font-semibold text-navy">৳{record.commission_amount.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">Discount</p>
+              <p className="mt-1 font-semibold text-navy">৳{record.discount_amount.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">Commission Status</p>
+              <p className="mt-1 font-semibold text-navy capitalize">{record.commission_status}</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-ink-soft">
+            Rate applied at creation, not editable here — changing the partner&apos;s configuration going
+            forward never affects a Project already created.
+          </p>
+        </section>
+      ) : null}
 
       {isProject ? (
         <section className="rounded-2xl border border-border bg-white p-6">
@@ -334,7 +393,7 @@ export default function FinanceRecordForm({
         </section>
       ) : null}
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <button

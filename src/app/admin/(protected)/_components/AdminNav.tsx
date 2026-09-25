@@ -16,6 +16,7 @@ const NAV = [
   { href: "/admin/materials", label: "Materials" },
   { href: "/admin/measurement-labels", label: "Measurement Labels" },
   { href: "/admin/craft-designs", label: "Craft Designs" },
+  { href: "/admin/partners", label: "Partners" },
 ];
 
 export default function AdminNav({

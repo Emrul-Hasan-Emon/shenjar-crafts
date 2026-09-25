@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@server/supabase/client";
@@ -35,6 +37,7 @@ export default function MaterialsSection({
       await addCraftDesignMaterial(createClient(), designId, selectedMaterialId, Number(quantity) || 1);
       setSelectedMaterialId("");
       setQuantity("1");
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add material");
@@ -50,6 +53,7 @@ export default function MaterialsSection({
     setError(null);
     try {
       await updateCraftDesignMaterialQuantity(createClient(), id, qty);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update quantity");
@@ -63,6 +67,7 @@ export default function MaterialsSection({
     setError(null);
     try {
       await removeCraftDesignMaterial(createClient(), id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove material");
@@ -140,7 +145,7 @@ export default function MaterialsSection({
       ) : (
         <p className="mt-3 text-sm text-ink-soft">No materials in the catalog yet — add one under Materials.</p>
       )}
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-sm text-red-600">{error}</p> : null}
     </section>
   );
 }

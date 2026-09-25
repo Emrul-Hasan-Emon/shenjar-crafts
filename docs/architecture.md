@@ -86,8 +86,9 @@ Media) follows the same shape:
 - A **Cancel** button appears only while `editing` is non-null, returning the form to create-mode.
 - `handleSubmit` branches on whether `editing` is set: calls the `update*` function when editing, the
   `create*` function otherwise, then `router.refresh()`.
-- Delete is a plain button next to each row/card, guarded by `window.confirm(...)`, calling the matching
-  `delete*` server function directly (no separate confirmation page).
+- Delete is a plain button next to each row/card, guarded by the shared `confirmPanel(...)` dialog from
+  `src/components/panel/PanelFeedback.tsx`, calling the matching `delete*` server function directly (no
+  separate confirmation page).
 
 One layout pitfall worth naming: when a list card needs both a `<Link>` (to navigate into detail) and
 `<button>`s (Edit/Delete) sitting inside the same card, the buttons must **not** be nested inside the

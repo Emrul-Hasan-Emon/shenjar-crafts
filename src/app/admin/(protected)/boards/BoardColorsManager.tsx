@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -29,6 +31,7 @@ export default function BoardColorsManager({ colors }: { colors: BoardColor[] })
       await createBoardColor(createClient(), { name_en: nameEn.trim(), name_bn: nameBn.trim() || null });
       setNameEn("");
       setNameBn("");
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add color");
@@ -52,6 +55,7 @@ export default function BoardColorsManager({ colors }: { colors: BoardColor[] })
         description_bn: String(form.get("description_bn") ?? "").trim() || null,
       });
       setEditingId(null);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update color");
@@ -65,6 +69,7 @@ export default function BoardColorsManager({ colors }: { colors: BoardColor[] })
     setError(null);
     try {
       await setDefaultBoardColor(createClient(), id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to set default");
@@ -74,11 +79,12 @@ export default function BoardColorsManager({ colors }: { colors: BoardColor[] })
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this color?")) return;
+    if (!await confirmPanel("Delete this color?")) return;
     setBusy(true);
     setError(null);
     try {
       await deleteBoardColor(createClient(), id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete — it may still be used by a board.");
@@ -207,7 +213,7 @@ export default function BoardColorsManager({ colors }: { colors: BoardColor[] })
           Add
         </button>
       </form>
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-sm text-red-600">{error}</p> : null}
     </section>
   );
 }

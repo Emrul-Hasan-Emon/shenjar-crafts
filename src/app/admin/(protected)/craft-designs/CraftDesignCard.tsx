@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,11 +15,12 @@ export default function CraftDesignCard({ design }: { design: CraftsDesignWithPr
   const [error, setError] = useState<string | null>(null);
 
   async function handleDelete() {
-    if (!window.confirm(`Delete "${design.name_en}"? This can't be undone.`)) return;
+    if (!await confirmPanel(`Delete "${design.name_en}"? This can't be undone.`)) return;
     setBusy(true);
     setError(null);
     try {
       await deleteCraftsDesign(createClient(), design.id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -49,7 +52,7 @@ export default function CraftDesignCard({ design }: { design: CraftsDesignWithPr
           Delete
         </button>
       </div>
-      {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -65,6 +67,7 @@ export default function RawMediaManager({
       });
 
       formRef.current?.reset();
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add media");
@@ -74,10 +77,14 @@ export default function RawMediaManager({
   }
 
   async function handleDelete(id: string) {
+    if (!await confirmPanel("Delete this media item? This cannot be undone.")) return;
     setBusy(true);
     try {
       await deleteRawMedia(createClient(), id);
+      notifyPanel("The media item was deleted.");
       router.refresh();
+    } catch (err) {
+      notifyPanel(err instanceof Error ? err.message : "Delete failed. Please try again.", "error");
     } finally {
       setBusy(false);
     }
@@ -130,7 +137,7 @@ export default function RawMediaManager({
           <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
           <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
         </div>
-        {error ? <p className="text-sm text-red-600 sm:col-span-2">{error}</p> : null}
+        {error ? <p role="alert" className="text-sm text-red-600 sm:col-span-2">{error}</p> : null}
         <div className="sm:col-span-2">
           <button
             type="submit"

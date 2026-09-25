@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream-dark/30 px-6">
+    <div className="panel-theme panel-login">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-2xl border border-border bg-white p-8 shadow-sm"
@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
           <div>
             <label className="block text-sm font-medium text-navy">Email</label>
             <input
-              type="email"
+              aria-label="Email address" autoComplete="username" type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
           <div>
             <label className="block text-sm font-medium text-navy">Password</label>
             <input
-              type="password"
+              aria-label="Password" autoComplete="current-password" type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="mt-4 text-sm text-red-600">{error}</p> : null}
 
         <button
           type="submit"

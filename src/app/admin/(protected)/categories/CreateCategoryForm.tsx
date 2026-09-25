@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -42,6 +44,7 @@ export default function CreateCategoryForm() {
       });
 
       formRef.current?.reset();
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create category");
@@ -76,7 +79,7 @@ export default function CreateCategoryForm() {
         <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
         <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
       </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
       <button
         type="submit"
         disabled={busy}

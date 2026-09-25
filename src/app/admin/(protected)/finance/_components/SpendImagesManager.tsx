@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -39,6 +41,7 @@ export default function SpendImagesManager({
       await uploadFile(supabase, path, compressed, compressed.type);
       await createSpendImage(supabase, financeRecordId, path);
       (e.target as HTMLFormElement).reset();
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -48,10 +51,12 @@ export default function SpendImagesManager({
   }
 
   async function handleDelete(id: string) {
+    if (!await confirmPanel("Delete this receipt image? This cannot be undone.")) return;
     setBusy(true);
     setError(null);
     try {
       await deleteSpendImage(createClient(), id);
+      notifyPanel("The receipt image was deleted.");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed");
@@ -108,7 +113,7 @@ export default function SpendImagesManager({
         </form>
       )}
 
-      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { createClient } from "@server/supabase/server-client";
 import { signOutAction } from "./actions";
-import AdminNav from "./_components/AdminNav";
+import PanelShell from "@/components/panel/PanelShell";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -9,12 +9,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     data: { user },
   } = await supabase.auth.getUser();
 
-  return (
-    <div className="flex min-h-screen flex-col bg-cream-dark/30 print:bg-white md:flex-row">
-      <AdminNav userEmail={user?.email ?? null} signOutAction={signOutAction} />
-      <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-8">
-        <div className="mx-auto max-w-6xl">{children}</div>
-      </main>
-    </div>
-  );
+  return <PanelShell mode="Admin" identity={user?.email ?? "Administrator"} signOutAction={signOutAction} groups={[
+    { label: "Overview", items: [{ href: "/admin", label: "Dashboard" }] },
+    { label: "Business", items: [{ href: "/admin/finance", label: "Finance" }, { href: "/admin/partners", label: "Partners" }] },
+    { label: "Workshop", items: [{ href: "/admin/craft-designs", label: "Craft designs" }, { href: "/admin/boards", label: "Boards" }, { href: "/admin/materials", label: "Materials" }, { href: "/admin/measurement-labels", label: "Measurements" }] },
+    { label: "Website content", items: [{ href: "/admin/categories", label: "Categories" }, { href: "/admin/banners", label: "Banners" }, { href: "/admin/photocards", label: "Photocards" }, { href: "/admin/raw-media", label: "Project media" }, { href: "/admin/about-us", label: "About us" }] },
+  ]}>{children}</PanelShell>;
 }

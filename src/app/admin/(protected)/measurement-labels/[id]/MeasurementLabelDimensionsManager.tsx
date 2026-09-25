@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -39,6 +41,7 @@ export default function MeasurementLabelDimensionsManager({
       });
       setLabelEn("");
       setLabelBn("");
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add dimension");
@@ -63,6 +66,7 @@ export default function MeasurementLabelDimensionsManager({
         sort_order: dimension.sort_order,
       });
       setEditingId(null);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update dimension");
@@ -72,11 +76,12 @@ export default function MeasurementLabelDimensionsManager({
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this dimension field?")) return;
+    if (!await confirmPanel("Delete this dimension field?")) return;
     setBusy(true);
     setError(null);
     try {
       await deleteMeasurementLabelDimension(createClient(), id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete dimension");
@@ -185,7 +190,7 @@ export default function MeasurementLabelDimensionsManager({
           Add
         </button>
       </form>
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-sm text-red-600">{error}</p> : null}
     </section>
   );
 }

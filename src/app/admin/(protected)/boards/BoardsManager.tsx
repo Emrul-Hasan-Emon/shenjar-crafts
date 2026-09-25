@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -52,6 +54,7 @@ export default function BoardsManager({
         await createBoard(supabase, input);
         (e.target as HTMLFormElement).reset();
       }
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save board");
@@ -61,12 +64,13 @@ export default function BoardsManager({
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this board?")) return;
+    if (!await confirmPanel("Delete this board?")) return;
     setBusy(true);
     setError(null);
     try {
       await deleteBoard(createClient(), id);
       if (editingBoard?.id === id) setEditingBoard(null);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete board");
@@ -248,7 +252,7 @@ export default function BoardsManager({
             />
           </div>
 
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
 
           <div className="flex gap-2">
             <button
@@ -273,7 +277,7 @@ export default function BoardsManager({
       )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
-        <table className="w-full min-w-[700px] text-left text-sm">
+        <table className="panel-mobile-table w-full min-w-[700px] text-left text-sm">
           <thead className="border-b border-border bg-cream-dark/40 text-xs font-semibold tracking-wide text-ink-soft uppercase">
             <tr>
               <th className="px-4 py-3">Name</th>
@@ -288,16 +292,16 @@ export default function BoardsManager({
           <tbody>
             {boards.map((b) => (
               <tr key={b.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-3">{b.name_en ?? "—"}</td>
-                <td className="px-4 py-3">{colorById.get(b.color_id)?.name_en ?? "—"}</td>
-                <td className="px-4 py-3">{thicknessById.get(b.thickness_id)?.value_mm ?? "—"}mm</td>
-                <td className="px-4 py-3 text-xs">
+                <td data-label="Name" className="px-4 py-3"><div className="panel-cell-value">{b.name_en ?? "—"}</div></td>
+                <td data-label="Color" className="px-4 py-3"><div className="panel-cell-value">{colorById.get(b.color_id)?.name_en ?? "—"}</div></td>
+                <td data-label="Thickness" className="px-4 py-3"><div className="panel-cell-value">{thicknessById.get(b.thickness_id)?.value_mm ?? "—"}mm</div></td>
+                <td data-label="Sheet Size" className="px-4 py-3 text-xs"><div className="panel-cell-value">
                   {b.sheet_length_inches}in {b.sheet_length_shuta}sh × {b.sheet_width_inches}in{" "}
                   {b.sheet_width_shuta}sh
-                </td>
-                <td className="px-4 py-3">৳{b.price_per_sheet.toFixed(2)}</td>
-                <td className="px-4 py-3">{b.wastage_percent}%</td>
-                <td className="px-4 py-3">
+                </div></td>
+                <td data-label="Price/Sheet" className="px-4 py-3"><div className="panel-cell-value">৳{b.price_per_sheet.toFixed(2)}</div></td>
+                <td data-label="Wastage" className="px-4 py-3"><div className="panel-cell-value">{b.wastage_percent}%</div></td>
+                <td data-label="Actions" className="px-4 py-3"><div className="panel-cell-value">
                   <div className="flex gap-3">
                     <button
                       type="button"
@@ -316,7 +320,7 @@ export default function BoardsManager({
                       Delete
                     </button>
                   </div>
-                </td>
+                </div></td>
               </tr>
             ))}
             {boards.length === 0 ? (

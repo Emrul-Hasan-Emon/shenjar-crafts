@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,12 +27,14 @@ export default function CategoryTabs({
 
   async function handleDeletePhotocard(id: string) {
     await deletePhotocard(createClient(), id);
-    router.refresh();
+    notifyPanel();
+      router.refresh();
   }
 
   async function handleDeleteRawMedia(id: string) {
     await deleteRawMedia(createClient(), id);
-    router.refresh();
+    notifyPanel();
+      router.refresh();
   }
 
   return (

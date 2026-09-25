@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -28,6 +30,7 @@ export default function BoardThicknessesManager({ thicknesses }: { thicknesses: 
     try {
       await createBoardThickness(createClient(), { value_mm: value });
       setValueMm("");
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add thickness");
@@ -46,6 +49,7 @@ export default function BoardThicknessesManager({ thicknesses }: { thicknesses: 
       if (!value || value <= 0) throw new Error("Enter a valid thickness");
       await updateBoardThickness(createClient(), id, { value_mm: value });
       setEditingId(null);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update thickness");
@@ -59,6 +63,7 @@ export default function BoardThicknessesManager({ thicknesses }: { thicknesses: 
     setError(null);
     try {
       await setDefaultBoardThickness(createClient(), id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to set default");
@@ -68,11 +73,12 @@ export default function BoardThicknessesManager({ thicknesses }: { thicknesses: 
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this thickness?")) return;
+    if (!await confirmPanel("Delete this thickness?")) return;
     setBusy(true);
     setError(null);
     try {
       await deleteBoardThickness(createClient(), id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete — it may still be used by a board.");
@@ -175,7 +181,7 @@ export default function BoardThicknessesManager({ thicknesses }: { thicknesses: 
           Add
         </button>
       </form>
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-sm text-red-600">{error}</p> : null}
     </section>
   );
 }

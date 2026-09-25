@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -37,6 +39,7 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
         await createMaterial(supabase, input);
         (e.target as HTMLFormElement).reset();
       }
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save material");
@@ -46,12 +49,13 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Delete this material?")) return;
+    if (!await confirmPanel("Delete this material?")) return;
     setBusy(true);
     setError(null);
     try {
       await deleteMaterial(createClient(), id);
       if (editingMaterial?.id === id) setEditingMaterial(null);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete material");
@@ -128,7 +132,7 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
             />
           </div>
         </div>
-        {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
         <div className="mt-4 flex gap-2">
           <button
             type="submit"
@@ -151,7 +155,7 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
       </form>
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-white">
-        <table className="w-full min-w-[500px] text-left text-sm">
+        <table className="panel-mobile-table w-full min-w-[500px] text-left text-sm">
           <thead className="border-b border-border bg-cream-dark/40 text-xs font-semibold tracking-wide text-ink-soft uppercase">
             <tr>
               <th className="px-4 py-3">Name</th>
@@ -163,10 +167,10 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
           <tbody>
             {materials.map((m) => (
               <tr key={m.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 font-semibold text-navy">{m.name_en}</td>
-                <td className="px-4 py-3">{m.unit}</td>
-                <td className="px-4 py-3">৳{m.unit_price.toFixed(2)}</td>
-                <td className="px-4 py-3">
+                <td data-label="Name" className="px-4 py-3 font-semibold text-navy"><div className="panel-cell-value">{m.name_en}</div></td>
+                <td data-label="Unit" className="px-4 py-3"><div className="panel-cell-value">{m.unit}</div></td>
+                <td data-label="Unit Price" className="px-4 py-3"><div className="panel-cell-value">৳{m.unit_price.toFixed(2)}</div></td>
+                <td data-label="Actions" className="px-4 py-3"><div className="panel-cell-value">
                   <div className="flex gap-3">
                     <button
                       type="button"
@@ -185,7 +189,7 @@ export default function MaterialsManager({ materials }: { materials: Material[] 
                       Delete
                     </button>
                   </div>
-                </td>
+                </div></td>
               </tr>
             ))}
             {materials.length === 0 ? (

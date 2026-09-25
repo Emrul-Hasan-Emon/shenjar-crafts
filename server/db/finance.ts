@@ -26,6 +26,19 @@ export type FinanceRecord = {
   total_price: number;
   total_cost_per_quantity: number | null;
   total_cost_all: number | null;
+  // Partner association — see docs/partner-management-plan.md. partner_id is
+  // the only field the app ever sets directly; the commission/discount
+  // snapshot and amount columns are all populated/computed by Postgres.
+  partner_id: string | null;
+  partner_code: string | null;
+  commission_rate: number | null;
+  commission_type: "fixed" | "percentage" | null;
+  commission_amount: number;
+  discount_rate: number | null;
+  discount_type: "fixed" | "percentage" | null;
+  discount_amount: number;
+  total_amount: number;
+  commission_status: "pending" | "earned" | "unearned";
   created_at: string;
   updated_at: string;
 };
@@ -47,6 +60,10 @@ export type FinanceRecordInput = {
   customer_email?: string | null;
   customer_address?: string | null;
   status?: ProjectStatus | null;
+  /** Set when Admin creates this Project on behalf of a partner. Never set
+   * from the partner's own create-order form — that path goes through
+   * server/partners/orders.ts, which resolves partner_id from the session. */
+  partner_id?: string | null;
 };
 
 function toRow(input: Partial<FinanceRecordInput>) {

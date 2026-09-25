@@ -87,6 +87,18 @@ Design Studio remains unlinked from navigation. Its existing route inherits the 
 
 Business enquiry links open the existing external destinations. No message is sent automatically. The EN/BN convention for managed content is retained; newly written static editorial copy remains English.
 
+## Admin and partner panels
+
+The admin and partner workspaces now share the `.panel-theme` design system in [`src/app/globals.css`](../src/app/globals.css), with the shared shell and feedback components in [`src/components/panel`](../src/components/panel). The intent is a quieter SaaS-style workspace: cool neutral surfaces, navy structure, compact cards, consistent controls, and table layouts that remain readable during repeated management work.
+
+[`PanelShell.tsx`](../src/components/panel/PanelShell.tsx) owns the common sidebar, mobile drawer, sticky topbar, account block, sign-out action, active-route state, and skip link. Admin uses broader grouped navigation for finance, partner management, workshop data, and website content. Partner uses the same shell with a narrower navigation set so it feels related to admin without exposing the full system.
+
+[`PanelFeedback.tsx`](../src/components/panel/PanelFeedback.tsx) provides shared toast notifications and destructive-action confirmations. Client-side create, update, delete, upload, and status-change flows use `notifyPanel(...)` for success/error feedback. Destructive actions use `confirmPanel(...)` instead of browser-native confirmation prompts so the experience stays consistent across admin and partner pages.
+
+[`PanelLoading.tsx`](../src/components/panel/PanelLoading.tsx) and [`PanelError.tsx`](../src/components/panel/PanelError.tsx) provide matching loading and error states for both protected route groups. Login pages use the same panel theme wrapper so authentication does not feel visually disconnected from the protected workspace.
+
+Tables that need to work on narrow screens use `.panel-mobile-table` and `data-label` attributes. On desktop they remain conventional tables; below 640px each row becomes a compact labeled card so users can scan more useful information on mobile without horizontal dragging.
+
 ## Responsive behavior
 
 - **Below 640px:** reduced section gaps, compact cards, two-column galleries/contact options, and horizontally scrolling category filters. Form controls use 16px text to reduce mobile input zoom.

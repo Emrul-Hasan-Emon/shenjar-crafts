@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -29,6 +31,7 @@ export default function CreateCraftsDesignForm({ projects }: { projects: { id: s
         finance_record_id: projectId || null,
       });
       router.push(`/admin/craft-designs/${design.id}`);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create design");
@@ -80,7 +83,7 @@ export default function CreateCraftsDesignForm({ projects }: { projects: { id: s
         <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
         <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
       </div>
-      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       <button
         type="submit"
         disabled={busy}

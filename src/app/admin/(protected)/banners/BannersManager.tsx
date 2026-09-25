@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
@@ -40,6 +42,7 @@ export default function BannersManager({
       await uploadFile(supabase, path, compressed, compressed.type);
       await createBanner(supabase, path);
       formRef.current?.reset();
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -49,11 +52,13 @@ export default function BannersManager({
   }
 
   async function handleDelete(id: string) {
+    if (!await confirmPanel("Delete this banner? This cannot be undone.")) return;
     setBusy(true);
     setError(null);
     try {
       const supabase = createClient();
       await deleteBanner(supabase, id);
+      notifyPanel("The banner was deleted.");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed");
@@ -68,6 +73,7 @@ export default function BannersManager({
     try {
       const supabase = createClient();
       await moveBanner(supabase, id, direction);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Reorder failed");
@@ -98,7 +104,7 @@ export default function BannersManager({
         ) : null}
       </form>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
 
       {initialBanners.length === 0 ? (
         <p className="text-sm text-ink-soft">No banners yet — add one above.</p>

@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -33,6 +35,7 @@ export default function MeasurementLabelCard({ label }: { label: MeasurementLabe
         default_quantity: Number(form.get("default_quantity") ?? 1),
       });
       setEditing(false);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -42,11 +45,12 @@ export default function MeasurementLabelCard({ label }: { label: MeasurementLabe
   }
 
   async function handleDelete() {
-    if (!window.confirm(`Delete "${label.name_en}"? This can't be undone.`)) return;
+    if (!await confirmPanel(`Delete "${label.name_en}"? This can't be undone.`)) return;
     setBusy(true);
     setError(null);
     try {
       await deleteMeasurementLabel(createClient(), label.id);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -91,7 +95,7 @@ export default function MeasurementLabelCard({ label }: { label: MeasurementLabe
           placeholder="Description (Bangla) — optional"
           className="w-full rounded-lg border border-border px-2 py-1.5 text-sm"
         />
-        {error ? <p className="text-xs text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="text-xs text-red-600">{error}</p> : null}
         <div className="flex gap-2">
           <button
             type="submit"
@@ -140,7 +144,7 @@ export default function MeasurementLabelCard({ label }: { label: MeasurementLabe
           </button>
         </div>
       </div>
-      {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -40,6 +42,7 @@ export default function EditDesignForm({
         finance_record_id: projectId || null,
       });
       setEditing(false);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -49,12 +52,13 @@ export default function EditDesignForm({
   }
 
   async function handleDelete() {
-    if (!window.confirm(`Delete "${design.name_en}"? This can't be undone.`)) return;
+    if (!await confirmPanel(`Delete "${design.name_en}"? This can't be undone.`)) return;
     setBusy(true);
     setError(null);
     try {
       await deleteCraftsDesign(createClient(), design.id);
       router.push("/admin/craft-designs");
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
@@ -80,7 +84,7 @@ export default function EditDesignForm({
         >
           Delete design
         </button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
       </div>
     );
   }
@@ -149,7 +153,7 @@ export default function EditDesignForm({
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
         />
       </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
       <div className="flex gap-2">
         <button
           type="submit"

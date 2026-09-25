@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -80,6 +82,7 @@ export default function RawMediaCard({
       });
 
       setEditing(false);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -136,7 +139,7 @@ export default function RawMediaCard({
           placeholder="Description (Bangla) — optional"
           className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
         />
-        {error ? <p className="text-xs text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="text-xs text-red-600">{error}</p> : null}
         <div className="flex gap-2">
           <button
             type="submit"

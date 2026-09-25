@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createClient } from "@server/supabase/client";
@@ -45,6 +47,7 @@ export default function EditCategoryForm({ category }: { category: Category }) {
       });
 
       setSaved(true);
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save category");
@@ -98,7 +101,7 @@ export default function EditCategoryForm({ category }: { category: Category }) {
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
         />
       </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
       {saved ? <p className="text-sm text-green-700">Saved.</p> : null}
       <button
         type="submit"

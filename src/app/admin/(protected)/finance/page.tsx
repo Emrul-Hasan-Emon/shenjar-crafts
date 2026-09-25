@@ -74,7 +74,7 @@ export default async function AdminFinancePage() {
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-white p-6">
           <h2 className="font-display text-lg font-semibold text-navy">Projects by Status</h2>
-          <table className="mt-4 w-full text-left text-sm">
+          <table className="panel-mobile-table mt-4 w-full text-left text-sm">
             <thead className="text-xs font-semibold tracking-wide text-ink-soft uppercase">
               <tr>
                 <th className="py-2">Status</th>
@@ -85,16 +85,16 @@ export default async function AdminFinancePage() {
             <tbody>
               {statusBreakdown.map((row) => (
                 <tr key={row.key} className="border-t border-border">
-                  <td className="py-2 font-semibold text-navy">{row.label}</td>
-                  <td className="py-2 font-semibold text-navy">{row.count}</td>
-                  <td className="py-2 font-semibold text-navy">{row.totalQuantity}</td>
+                  <td data-label="Status" className="py-2 font-semibold text-navy"><div className="panel-cell-value">{row.label}</div></td>
+                  <td data-label="Count" className="py-2 font-semibold text-navy"><div className="panel-cell-value">{row.count}</div></td>
+                  <td data-label="Total Quantity" className="py-2 font-semibold text-navy"><div className="panel-cell-value">{row.totalQuantity}</div></td>
                 </tr>
               ))}
               {noStatusCount > 0 ? (
                 <tr className="border-t border-border">
-                  <td className="py-2 text-ink-soft">— not set —</td>
-                  <td className="py-2 text-ink-soft">{noStatusCount}</td>
-                  <td className="py-2 text-ink-soft">—</td>
+                  <td data-label="Status" className="py-2 text-ink-soft"><div className="panel-cell-value">— not set —</div></td>
+                  <td data-label="Count" className="py-2 text-ink-soft"><div className="panel-cell-value">{noStatusCount}</div></td>
+                  <td data-label="Total Quantity" className="py-2 text-ink-soft"><div className="panel-cell-value">—</div></td>
                 </tr>
               ) : null}
             </tbody>

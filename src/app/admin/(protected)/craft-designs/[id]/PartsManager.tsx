@@ -1,5 +1,7 @@
 "use client";
 
+import { notifyPanel } from "@/components/panel/PanelFeedback";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@server/supabase/client";
@@ -37,6 +39,7 @@ export default function PartsManager({
     try {
       await addCraftDesignPart(createClient(), designId, selectedLabelId);
       setSelectedLabelId("");
+      notifyPanel();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add part");
@@ -80,7 +83,7 @@ export default function PartsManager({
             : "Every available measurement label has been added to this design."}
         </p>
       )}
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-sm text-red-600">{error}</p> : null}
 
       <div className="mt-4 space-y-4">
         {parts.map((part) => (
