@@ -10,16 +10,27 @@
  *   production   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
  *   development  DEV_SUPABASE_URL, DEV_SUPABASE_ANON_KEY, DEV_SUPABASE_SERVICE_ROLE_KEY
  *
- * `NODE_ENV` is anything other than "production" during local development (`next dev` sets it
- * to "development" automatically) and standalone scripts (which default to "development" too —
- * see `server/scripts/loadSupabaseEnv.ts`), and is "production" for `next build`/`next start`
- * and the Vercel deployment. See README.md, "Two Supabase environments" for the full setup.
+ * The app itself (this function) defaults to **production** — it only ever resolves to
+ * "development" when `NODE_ENV` is *literally* `"development"` (which `next dev` sets
+ * automatically, reliably; that's the only case this needs to catch). Anything else —
+ * `NODE_ENV` unset, or some other value — resolves to production. This is a deliberate
+ * fail-safe: a deployed instance of this app must never silently read placeholder/dev
+ * credentials just because `NODE_ENV` wasn't set the way we expected; it's far better for it
+ * to loudly require real production credentials than to quietly point at the wrong database.
+ *
+ * Standalone scripts under `server/scripts/` are the one deliberate exception — they default
+ * to **development** instead (see `server/scripts/loadSupabaseEnv.ts`), because the risk runs
+ * the other way there: a human running a script on their own machine should never accidentally
+ * write to production just because they forgot to set an env var. That default lives in its
+ * own small resolution snippet in `loadSupabaseEnv.ts`, independent of the function below.
+ *
+ * See README.md, "Two Supabase environments" for the full setup.
  */
 
 export type SupabaseEnvironment = "development" | "production";
 
 export function getSupabaseEnvironment(): SupabaseEnvironment {
-  return process.env.NODE_ENV === "production" ? "production" : "development";
+  return process.env.NODE_ENV === "development" ? "development" : "production";
 }
 
 function required(value: string | undefined, name: string, environment: SupabaseEnvironment): string {

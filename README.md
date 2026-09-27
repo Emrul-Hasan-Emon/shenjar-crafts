@@ -217,11 +217,24 @@ This app talks to **two separate Supabase projects** — production and developm
 `.env.local`, distinguished by variable name and chosen automatically by `NODE_ENV` (see
 `server/supabase/env.ts`, the one place that branches on this):
 
-| | `NODE_ENV=production` (Vercel, `next build`/`next start`) | anything else (`next dev`, and every script under `server/scripts/`) |
+| | `NODE_ENV=development` (`next dev` — this is the *only* trigger) | anything else, including unset (Vercel, `next build`/`next start`) |
 |---|---|---|
-| URL | `SUPABASE_URL` | `DEV_SUPABASE_URL` |
-| Anon key | `SUPABASE_ANON_KEY` | `DEV_SUPABASE_ANON_KEY` |
-| Service role key | `SUPABASE_SERVICE_ROLE_KEY` | `DEV_SUPABASE_SERVICE_ROLE_KEY` |
+| URL | `DEV_SUPABASE_URL` | `SUPABASE_URL` |
+| Anon key | `DEV_SUPABASE_ANON_KEY` | `SUPABASE_ANON_KEY` |
+| Service role key | `DEV_SUPABASE_SERVICE_ROLE_KEY` | `SUPABASE_SERVICE_ROLE_KEY` |
+
+**Production is the default.** The app only ever reads the `DEV_SUPABASE_*` keys when `NODE_ENV` is
+*literally* `"development"` — everything else (unset, missing, some unexpected value) resolves to
+production. This is deliberate: a deployed instance must never silently fall back to placeholder/dev
+credentials just because `NODE_ENV` wasn't set the way we expected; it should instead loudly require real
+production credentials. `next dev` sets `NODE_ENV=development` automatically and reliably, so local
+development is unaffected by this.
+
+Standalone scripts under `server/scripts/` (`migrate`, `seed-partners.ts`, `smoke-test-*.ts`, etc.) are the
+one deliberate exception and go the **other** way — they default to *development* when `NODE_ENV` isn't
+set, because for a script a human runs on their own machine, the risk is reversed: it should never
+accidentally write to production just because someone forgot to set an env var. See
+`server/scripts/loadSupabaseEnv.ts` for that separate (intentionally opposite) default.
 
 `.env.local` is gitignored — never committed, and holds all six values side by side. The production
 deployment on Vercel already has its three values configured via the Supabase integration, independent of
