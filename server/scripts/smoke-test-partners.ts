@@ -1,39 +1,26 @@
 /**
  * Smoke test for the Partner Management feature: creates a handful of random
- * partners against the real Supabase project (via the service role key, same
- * as migrate-to-supabase.ts) and exercises the create -> order -> deliver
- * flow, asserting the schema's generated columns and triggers behave as
- * documented in docs/partner-management-plan.md.
+ * partners against a real Supabase project (via the service role key) and
+ * exercises the create -> order -> deliver flow, asserting the schema's
+ * generated columns and triggers behave as documented in
+ * docs/partner-management-plan.md.
  *
  * Run locally (never in CI/Vercel): npx tsx server/scripts/smoke-test-partners.ts
- * Requires .env.local with NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+ * Only ever runs against the "development" Supabase project — refuses to run at all if
+ * NODE_ENV=production (see README.md, "Two Supabase environments").
  *
  * Leaves the created partners/orders in the database on purpose, so they're
  * visible in /admin/partners afterwards — this is not a cleanup script.
  */
-import path from "node:path";
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import { partnerAuthEmail } from "../partners/authEmail";
+import { getSupabaseUrl, getSupabaseServiceRoleKey } from "../supabase/env";
+import { loadSupabaseEnv, assertNotProduction } from "./loadSupabaseEnv";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, "..", "..");
+loadSupabaseEnv();
+assertNotProduction("smoke-test-partners.ts");
 
-loadEnvLocal(path.join(REPO_ROOT, ".env.local"));
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY.\n" +
-      "Add them to .env.local (see README.md) before running this script."
-  );
-  process.exit(1);
-}
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const supabase = createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -287,22 +274,6 @@ async function main() {
 
   console.log(`\n${passed} passed, ${failed} failed.`);
   if (failed > 0) process.exit(1);
-}
-
-function loadEnvLocal(filePath: string) {
-  if (!fs.existsSync(filePath)) return;
-  for (const rawLine of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const eq = line.indexOf("=");
-    if (eq === -1) continue;
-    const key = line.slice(0, eq).trim();
-    let value = line.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    if (!(key in process.env)) process.env[key] = value;
-  }
 }
 
 main().catch((err) => {

@@ -12,7 +12,7 @@ Three layers of tests cover this module. Keep all three up to date as the module
    query. This is what the pure unit tests can't cover: real Supabase query shapes, joins, and RLS/service-role
    interaction. Refuses to run at all if resolved to the production environment.
 3. **Manual QA checklist** — below. Exercises the real admin UI itself (clicking through Create, List, Detail,
-   Invoice) against a real Supabase project. Needs a working `.env.development.local` and an authenticated
+   Invoice) against a real Supabase project. Needs a working `.env.local` and an authenticated
    admin session, so it can't be automated from a sandboxed session with no database access — run it by hand
    after any change that touches the Craft Design UI.
 
@@ -49,7 +49,7 @@ Run:
 npm run test:craft-design
 ```
 
-Requires `.env.development.local` filled in with real development-project keys (see README.md, "Two
+Requires `.env.local` filled in with real development-project keys (see README.md, "Two
 Supabase environments"). What it does, end to end, against the real database:
 
 1. Finds-or-creates catalog fixtures (a "Smoke Test Walnut" color, an 18mm thickness, a matching board sized
@@ -73,7 +73,7 @@ target the development project.
 
 ## 3. Manual QA checklist (needs a live Supabase project + admin login)
 
-Prerequisites: `.env.development.local` with real `DEV_SUPABASE_URL`/`DEV_SUPABASE_ANON_KEY`, `npm run dev`,
+Prerequisites: `.env.local` with real `DEV_SUPABASE_URL`/`DEV_SUPABASE_ANON_KEY`, `npm run dev`,
 logged in at `/admin/login`. At least one `board_colors` row and one `board_thicknesses` row marked
 `is_default`, one `boards` row for that combination, at least one `measurement_label` with 2 dimensions, and
 at least one `materials` row — or create them as part of TC-1 (or just run `npm run test:craft-design` first,
