@@ -14,18 +14,18 @@ import RawMediaCard, { type RawMediaItem } from "../../_components/RawMediaCard"
 export default function CategoryTabs({
   categoryId,
   categories,
-  photocards,
+  products,
   rawMedia,
 }: {
   categoryId: string;
   categories: CategoryOption[];
-  photocards: PhotocardItem[];
+  products: PhotocardItem[];
   rawMedia: RawMediaItem[];
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"photocards" | "rawMedia">("photocards");
+  const [tab, setTab] = useState<"products" | "rawMedia">("products");
 
-  async function handleDeletePhotocard(id: string) {
+  async function handleDeleteProduct(id: string) {
     await deletePhotocard(createClient(), id);
     notifyPanel();
       router.refresh();
@@ -42,12 +42,12 @@ export default function CategoryTabs({
       <div className="flex gap-2 border-b border-border">
         <button
           type="button"
-          onClick={() => setTab("photocards")}
+          onClick={() => setTab("products")}
           className={`px-4 py-2 text-sm font-semibold ${
-            tab === "photocards" ? "border-b-2 border-wood text-navy" : "text-ink-soft"
+            tab === "products" ? "border-b-2 border-wood text-navy" : "text-ink-soft"
           }`}
         >
-          Photocards ({photocards.length})
+          Products ({products.length})
         </button>
         <button
           type="button"
@@ -61,20 +61,20 @@ export default function CategoryTabs({
       </div>
 
       <div className="mt-6">
-        {tab === "photocards" ? (
+        {tab === "products" ? (
           <>
             <Link
-              href={`/admin/photocards?category=${categoryId}`}
+              href={`/admin/products?category=${categoryId}`}
               className="inline-flex text-sm font-semibold text-wood hover:underline"
             >
-              + Add photocard to this category
+              + Add product to this category
             </Link>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-              {photocards.map((p) => (
-                <PhotocardCard key={p.id} item={p} categories={categories} onDelete={handleDeletePhotocard} />
+              {products.map((p) => (
+                <PhotocardCard key={p.id} item={p} categories={categories} onDelete={handleDeleteProduct} />
               ))}
-              {photocards.length === 0 ? (
-                <p className="text-sm text-ink-soft">No photocards in this category yet.</p>
+              {products.length === 0 ? (
+                <p className="text-sm text-ink-soft">No products in this category yet.</p>
               ) : null}
             </div>
           </>

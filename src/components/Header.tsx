@@ -73,6 +73,12 @@ export default function Header() {
 
         <div className="hidden items-center gap-3 xl:flex">
           <LanguageToggle />
+          <Link
+            href="/partner/login"
+            className="rounded-full border border-navy/15 px-5 py-2.5 text-sm font-semibold text-navy transition-colors hover:border-navy/30 hover:bg-navy/5"
+          >
+            Partner Portal
+          </Link>
           <a
             href={site.phoneHref}
             className="rounded-full border border-navy/15 px-5 py-2.5 text-sm font-semibold text-navy transition-colors hover:border-navy/30 hover:bg-navy/5"
@@ -129,6 +135,13 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/partner/login"
+              onClick={() => setOpen(false)}
+              className="rounded-xl border border-navy/10 bg-white/70 px-3 py-3 text-sm font-semibold text-navy hover:bg-cream-dark"
+            >
+              Partner Portal
+            </Link>
             <a
               href={site.whatsappHref}
               target="_blank"

@@ -12,6 +12,8 @@ export type ModalItem = {
   descriptionBn?: string | null;
   imageUrl: string;
   kind?: "image" | "video";
+  price?: number | null;
+  discountedPrice?: number | null;
 };
 
 export default function OrderModal({ item, onClose }: { item: ModalItem | null; onClose: () => void }) {
@@ -39,6 +41,10 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
 
   const title = pickLocalized(item.title, item.titleBn, lang);
   const description = pickLocalized(item.description, item.descriptionBn, lang);
+  const activePrice = item.discountedPrice ?? item.price ?? null;
+  const hasDiscount = item.discountedPrice !== null && item.discountedPrice !== undefined && item.price !== null && item.price !== undefined && item.discountedPrice < item.price;
+  const formatPrice = (value: number | null | undefined) =>
+    value === null || value === undefined ? null : `৳${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
   const whatsappMessage = title
     ? `Hi, I'd like to discuss a custom piece inspired by: ${title}`
     : "Hi, I'd like to discuss a custom piece inspired by this design.";
@@ -82,6 +88,16 @@ function OrderModalContent({ item, onClose }: { item: ModalItem; onClose: () => 
 
         <div className="p-4 sm:p-6">
           {title ? <h3 className="font-display text-lg font-semibold text-navy">{title}</h3> : null}
+          <div className="mt-2 flex items-baseline gap-2">
+            {activePrice !== null ? (
+              <>
+                <span className="text-lg font-semibold text-navy">{formatPrice(activePrice)}</span>
+                {hasDiscount ? <span className="text-sm text-ink-soft line-through">{formatPrice(item.price)}</span> : null}
+              </>
+            ) : (
+              <span className="text-sm font-semibold text-wood">Contact for price</span>
+            )}
+          </div>
           {description ? (
             <p className="mt-2 text-sm leading-relaxed text-ink-soft">{description}</p>
           ) : null}

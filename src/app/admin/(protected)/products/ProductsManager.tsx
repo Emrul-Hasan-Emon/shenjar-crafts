@@ -12,7 +12,7 @@ import { measureImage } from "@/lib/measureImage";
 import MediaPreviewInput from "../_components/MediaPreviewInput";
 import PhotocardCard, { parseProductPrice, type CategoryOption, type PhotocardItem } from "../_components/PhotocardCard";
 
-export default function PhotocardsManager({
+export default function ProductsManager({
   categories,
   items,
   initialCategoryId,

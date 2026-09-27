@@ -45,6 +45,11 @@ export default function Footer() {
                 Contact
               </Link>
             </li>
+            <li>
+              <Link href="/partner/login" className="inline-flex min-h-9 items-center hover:text-cream">
+                Partner Portal
+              </Link>
+            </li>
           </ul>
         </div>
 

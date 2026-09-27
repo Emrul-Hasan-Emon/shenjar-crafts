@@ -17,7 +17,7 @@ Public-read, authenticated-write.
 |---|---|---|
 | `categories` | `slug` (unique), `name_en`/`name_bn`, `banner_path`, `description_en`/`description_bn`, `sort_order` | Free-form — admin creates whatever categories fit; no fixed list in code. |
 | `banners` | `image_path`, `sort_order` | Homepage hero slider, capped at 5 in application code. |
-| `photocards` | `category_id` → `categories`, `image_path`, `width`/`height`, `name_en`/`name_bn`, `description_en`/`description_bn` | One promotional image per row, shown on `/products`. |
+| `photocards` | `category_id` → `categories`, `image_path`, `width`/`height`, `name_en`/`name_bn`, `description_en`/`description_bn`, `price`, `discounted_price` | Product rows shown on `/products`. The UI labels these as Products while the table remains `photocards`; `price`/`discounted_price` are nullable, and the database checks `discounted_price <= price` when both are set. |
 | `raw_media` | `category_id` → `categories`, `kind` (`image`\|`video`), `media_path`, `width`/`height`, `name_en`/`name_bn`, `description_en`/`description_bn` | One real work photo or video per row, shown on `/our-work`. |
 | `about_us` | `id` fixed to `'default'` (singleton row), `content_en`/`content_bn` | One row only, upserted via `on conflict (id) do nothing` at schema-run time. |
 

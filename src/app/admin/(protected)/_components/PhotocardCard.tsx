@@ -23,12 +23,32 @@ export type PhotocardItem = {
   nameBn: string | null;
   descriptionEn: string | null;
   descriptionBn: string | null;
+  price: number | null;
+  discountedPrice: number | null;
 };
 
 export function extractStoragePath(publicUrl: string): string | undefined {
   const marker = "/object/public/media/";
   const idx = publicUrl.indexOf(marker);
   return idx === -1 ? undefined : publicUrl.slice(idx + marker.length);
+}
+
+export function parseProductPrice(value: FormDataEntryValue | null, label: string, required: true): number;
+export function parseProductPrice(value: FormDataEntryValue | null, label: string, required?: false): number | null;
+export function parseProductPrice(value: FormDataEntryValue | null, label: string, required = false): number | null {
+  const raw = String(value ?? "").trim();
+  if (!raw) {
+    if (required) throw new Error(`${label} is required`);
+    return null;
+  }
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 0) throw new Error(`${label} must be a positive number`);
+  return parsed;
+}
+
+export function formatProductPrice(value: number | null): string | null {
+  if (value === null) return null;
+  return `৳${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
 export default function PhotocardCard({
@@ -52,6 +72,9 @@ export default function PhotocardCard({
     try {
       const form = new FormData(e.currentTarget);
       const nameEn = String(form.get("name_en") ?? "").trim();
+      const price = parseProductPrice(form.get("price"), "Price", false);
+      const discountedPrice = parseProductPrice(form.get("discounted_price"), "Discounted price");
+      if (price !== null && discountedPrice !== null && discountedPrice > price) throw new Error("Discounted price cannot be greater than price");
       if (!nameEn) throw new Error("Enter a name");
 
       const supabase = createClient();
@@ -74,6 +97,8 @@ export default function PhotocardCard({
         name_bn: String(form.get("name_bn") ?? "").trim() || null,
         description_en: String(form.get("description_en") ?? "").trim() || null,
         description_bn: String(form.get("description_bn") ?? "").trim() || null,
+        price,
+        discounted_price: discountedPrice,
         ...(imagePath ? { image_path: imagePath, width, height } : {}),
         previousImagePath: imagePath ? extractStoragePath(item.url) : undefined,
       });
@@ -114,6 +139,24 @@ export default function PhotocardCard({
           name="name_bn"
           defaultValue={item.nameBn ?? ""}
           placeholder="Name (Bangla)"
+          className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
+        />
+        <input
+          name="price"
+          type="number"
+          min="0"
+          step="any"
+          defaultValue={item.price ?? ""}
+          placeholder="Price"
+          className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
+        />
+        <input
+          name="discounted_price"
+          type="number"
+          min="0"
+          step="any"
+          defaultValue={item.discountedPrice ?? ""}
+          placeholder="Discounted price"
           className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
         />
         <textarea
@@ -161,6 +204,18 @@ export default function PhotocardCard({
       <div className="p-3">
         <p className="text-xs font-semibold text-wood uppercase">{item.categoryName}</p>
         <p className="mt-1 truncate text-xs text-ink-soft">{item.nameEn ?? "—"}</p>
+        <div className="mt-2 flex flex-wrap items-baseline gap-2 text-xs">
+          {item.discountedPrice !== null ? (
+            <>
+              <span className="font-semibold text-navy">{formatProductPrice(item.discountedPrice)}</span>
+              <span className="text-ink-soft line-through">{formatProductPrice(item.price)}</span>
+            </>
+          ) : item.price !== null ? (
+            <span className="font-semibold text-navy">{formatProductPrice(item.price)}</span>
+          ) : (
+            <span className="text-ink-soft">Price not set</span>
+          )}
+        </div>
         <div className="mt-2 flex gap-2">
           <button
             type="button"

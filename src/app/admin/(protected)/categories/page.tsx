@@ -9,14 +9,14 @@ import CreateCategoryForm from "./CreateCategoryForm";
 
 export default async function AdminCategoriesPage() {
   const supabase = await createClient();
-  const [categories, photocards, rawMedia] = await Promise.all([
+  const [categories, products, rawMedia] = await Promise.all([
     listCategories(supabase),
     listPhotocards(supabase),
     listRawMedia(supabase),
   ]);
 
-  const photocardCount = new Map<string, number>();
-  for (const p of photocards) photocardCount.set(p.category_id, (photocardCount.get(p.category_id) ?? 0) + 1);
+  const productCount = new Map<string, number>();
+  for (const p of products) productCount.set(p.category_id, (productCount.get(p.category_id) ?? 0) + 1);
   const rawMediaCount = new Map<string, number>();
   for (const m of rawMedia) rawMediaCount.set(m.category_id, (rawMediaCount.get(m.category_id) ?? 0) + 1);
 
@@ -24,7 +24,7 @@ export default async function AdminCategoriesPage() {
     <div>
       <h1 className="font-display text-2xl font-semibold text-navy">Categories</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Create categories here, then attach photocards and raw media to them.
+        Create categories here, then attach products and raw media to them.
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
@@ -43,7 +43,7 @@ export default async function AdminCategoriesPage() {
               <p className="truncate font-semibold text-navy">{category.name_en}</p>
               {category.name_bn ? <p className="truncate text-xs text-ink-soft">{category.name_bn}</p> : null}
               <p className="mt-1 truncate text-xs text-ink-soft">
-                {photocardCount.get(category.id) ?? 0} photocard(s) &middot;{" "}
+                {productCount.get(category.id) ?? 0} product(s) &middot;{" "}
                 {rawMediaCount.get(category.id) ?? 0} raw media
               </p>
             </div>

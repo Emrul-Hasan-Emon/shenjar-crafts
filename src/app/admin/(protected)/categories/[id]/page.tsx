@@ -17,14 +17,14 @@ export default async function AdminCategoryDetailPage({
   const category = await getCategoryById(supabase, id);
   if (!category) notFound();
 
-  const [allCategories, photocards, rawMedia] = await Promise.all([
+  const [allCategories, products, rawMedia] = await Promise.all([
     listCategories(supabase),
     listPhotocards(supabase, { categoryId: id }),
     listRawMedia(supabase, { categoryId: id }),
   ]);
 
   const categoryById = new Map(allCategories.map((c) => [c.id, c]));
-  const photocardItems = photocards.map((p) => ({
+  const productItems = products.map((p) => ({
     id: p.id,
     url: getPublicUrl(supabase, p.image_path),
     categoryId: p.category_id,
@@ -33,6 +33,8 @@ export default async function AdminCategoryDetailPage({
     nameBn: p.name_bn,
     descriptionEn: p.description_en,
     descriptionBn: p.description_bn,
+    price: p.price ?? null,
+    discountedPrice: p.discounted_price ?? null,
   }));
   const rawMediaItems = rawMedia.map((m) => ({
     id: m.id,
@@ -62,7 +64,7 @@ export default async function AdminCategoryDetailPage({
         <CategoryTabs
           categoryId={category.id}
           categories={allCategories.map((c) => ({ id: c.id, name: c.name_en }))}
-          photocards={photocardItems}
+          products={productItems}
           rawMedia={rawMediaItems}
         />
       </div>

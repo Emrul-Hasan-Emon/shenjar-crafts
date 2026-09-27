@@ -18,9 +18,16 @@ export type ProductGridItem = {
   nameBn?: string | null;
   descriptionEn?: string | null;
   descriptionBn?: string | null;
+  price: number | null;
+  discountedPrice: number | null;
 };
 
 export type ProductGridCategory = { slug: string; name: string; nameBn?: string | null };
+
+function formatProductPrice(value: number | null): string | null {
+  if (value === null) return null;
+  return `৳${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+}
 
 export default function ProductsGrid({
   items,
@@ -92,6 +99,8 @@ export default function ProductsGrid({
           {visible.map((product) => {
             const categoryName = pickLocalized(product.categoryName, product.categoryNameBn, lang);
             const name = pickLocalized(product.name, product.nameBn, lang);
+            const activePrice = product.discountedPrice ?? product.price;
+            const hasDiscount = product.discountedPrice !== null && product.price !== null && product.discountedPrice < product.price;
             return (
               <button
                 type="button"
@@ -123,6 +132,16 @@ export default function ProductsGrid({
                   </div>
                 )}
                 {name ? <p className="px-3 py-2 text-xs text-ink-soft sm:px-4 sm:py-3 sm:text-sm">{name}</p> : null}
+                <div className="flex items-baseline gap-2 px-3 pb-3 sm:px-4 sm:pb-4">
+                  {activePrice !== null ? (
+                    <>
+                      <span className="text-sm font-semibold text-navy">{formatProductPrice(activePrice)}</span>
+                      {hasDiscount ? <span className="text-xs text-ink-soft line-through">{formatProductPrice(product.price)}</span> : null}
+                    </>
+                  ) : (
+                    <span className="text-xs font-semibold text-wood">Contact for price</span>
+                  )}
+                </div>
               </button>
             );
           })}
@@ -139,6 +158,8 @@ export default function ProductsGrid({
                 descriptionBn: selected.descriptionBn,
                 imageUrl: selected.imageUrl,
                 kind: "image",
+                price: selected.price,
+                discountedPrice: selected.discountedPrice,
               }
             : null
         }

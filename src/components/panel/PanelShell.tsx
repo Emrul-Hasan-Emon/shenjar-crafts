@@ -34,7 +34,7 @@ export default function PanelShell({ children, mode, identity, subtitle, groups,
       {mobile ? <button className="panel-menu-close" type="button" onClick={closeDrawer}>Close navigation</button> : null}
     </>;
   }
-  return <div className="panel-theme panel-shell">
+  return <div className={`panel-theme panel-shell panel-${mode.toLowerCase()}-shell`}>
     <a href="#panel-main" className="panel-skip">Skip to workspace</a>
     <aside className="panel-sidebar print:hidden">{navigation()}</aside>
     <dialog ref={dialog} className="panel-theme panel-drawer" aria-label={`${mode} navigation`} onClose={() => setDrawerOpen(false)} onClick={event => { if (event.target === event.currentTarget) closeDrawer(); }}>
@@ -43,6 +43,15 @@ export default function PanelShell({ children, mode, identity, subtitle, groups,
     <div className="panel-workspace">
       <header className="panel-topbar print:hidden"><div className="flex min-w-0 items-center gap-3"><button type="button" className="panel-menu-trigger" aria-label="Open navigation" aria-expanded={drawerOpen} onClick={openDrawer}><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button><div className="panel-breadcrumb"><span>{mode} workspace</span><span aria-hidden="true">/</span><strong>{current}</strong></div></div><span className="panel-access-badge">{mode}</span></header>
       <main id="panel-main" tabIndex={-1} className="panel-main"><div className="panel-content">{children}</div></main>
+      {mode === "Partner" ? (
+        <nav aria-label="Partner quick navigation" className="panel-bottom-nav print:hidden">
+          {items.map((item) => (
+            <Link key={item.href} href={item.href} aria-current={active(item.href) ? "page" : undefined}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
     </div>
     <PanelFeedback />
   </div>;

@@ -35,6 +35,8 @@ export type PhotocardInput = {
   name_bn?: string | null;
   description_en?: string | null;
   description_bn?: string | null;
+  price?: number | null;
+  discounted_price?: number | null;
 };
 
 export async function createPhotocard(
@@ -52,6 +54,8 @@ export async function createPhotocard(
       name_bn: input.name_bn ?? null,
       description_en: input.description_en ?? null,
       description_bn: input.description_bn ?? null,
+      price: input.price ?? null,
+      discounted_price: input.discounted_price ?? null,
     })
     .select("*")
     .single();

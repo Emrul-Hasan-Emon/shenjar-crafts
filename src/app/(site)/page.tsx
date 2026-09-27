@@ -161,6 +161,8 @@ export default async function Home() {
     .slice(0, 6);
 
   const featuredProducts = photocards.slice(0, 4);
+  const formatProductPrice = (value: number | null) =>
+    value === null ? null : `৳${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
   const featuredWork = rawMedia.filter((m) => m.kind === "image").slice(0, 3);
 
@@ -281,6 +283,10 @@ export default async function Home() {
               {featuredProducts.map((product) => {
 
                 const category = categories.find((c) => c.id === product.category_id);
+                const productPrice = product.price ?? null;
+                const productDiscountedPrice = product.discounted_price ?? null;
+                const activePrice = productDiscountedPrice ?? productPrice;
+                const hasDiscount = productDiscountedPrice !== null && productPrice !== null && productDiscountedPrice < productPrice;
 
                 return (
 
@@ -322,10 +328,15 @@ export default async function Home() {
 
                       </p>
 
-                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-wood-light">
-
-                        View Details
-
+                      <span className="mt-1 flex items-baseline gap-2 text-xs font-semibold text-wood-light">
+                        {activePrice !== null ? (
+                          <>
+                            <span>{formatProductPrice(activePrice)}</span>
+                            {hasDiscount ? <span className="text-white/55 line-through">{formatProductPrice(productPrice)}</span> : null}
+                          </>
+                        ) : (
+                          <span>Contact for price</span>
+                        )}
                       </span>
 
                     </div>

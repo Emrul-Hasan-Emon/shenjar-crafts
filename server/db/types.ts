@@ -27,6 +27,8 @@ export type Photocard = {
   name_bn: string | null;
   description_en: string | null;
   description_bn: string | null;
+  price: number | null;
+  discounted_price: number | null;
   created_at: string;
 };
 

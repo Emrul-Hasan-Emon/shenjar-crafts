@@ -9,7 +9,7 @@ import { getAdminPartnerStats } from "@server/partners/dashboard";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
-  const [categories, banners, photocards, rawMedia, financeRecords, partnerStats] = await Promise.all([
+  const [categories, banners, products, rawMedia, financeRecords, partnerStats] = await Promise.all([
     listCategories(supabase),
     listBanners(supabase),
     listPhotocards(supabase),
@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
   const cards = [
     { label: "Banners", count: banners.length, hint: `max ${MAX_BANNERS}`, href: "/admin/banners" },
     { label: "Categories", count: categories.length, href: "/admin/categories" },
-    { label: "Photocards", count: photocards.length, href: "/admin/photocards" },
+    { label: "Products", count: products.length, href: "/admin/products" },
     { label: "Raw Media", count: rawMedia.length, href: "/admin/raw-media" },
     { label: "Finance Records", count: financeRecords.length, href: "/admin/finance" },
     { label: "Partners", count: partnerStats.totalPartners, href: "/admin/partners" },

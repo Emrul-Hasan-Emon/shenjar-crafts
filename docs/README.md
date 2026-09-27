@@ -43,7 +43,7 @@ reference for the full database schema.
 
 | Module | Public-facing? | Admin route | Data lives in |
 |---|---|---|---|
-| Site content (categories, banners, photocards, raw media, about us) | Yes | `/admin/categories`, `/admin/banners`, `/admin/photocards`, `/admin/raw-media`, `/admin/about-us` | `categories`, `banners`, `photocards`, `raw_media`, `about_us` |
+| Site content (categories, banners, products, raw media, about us) | Yes | `/admin/categories`, `/admin/banners`, `/admin/products`, `/admin/raw-media`, `/admin/about-us` | `categories`, `banners`, `photocards`, `raw_media`, `about_us` |
 | Finance (projects, spends, invoices) | Invoices only, via unguessable link | `/admin/finance/*` | `finance_records`, `spend_images` |
 | Craft Design (boards, materials, measurement labels, designs) | No — fully internal | `/admin/boards`, `/admin/materials`, `/admin/measurement-labels`, `/admin/craft-designs` | `board_colors`, `board_thicknesses`, `boards`, `materials`, `measurement_label`, `measurement_label_dimensions`, `crafts_designs`, `craft_design_measurement_label`, `craft_design_measurement_label_dimensions`, `craft_design_materials` |
 | Design Studio (AI sketch tool) | Yes, but unlinked from nav | none (no admin management — it's a public tool) | none (stateless — calls an external free AI image API per request) |

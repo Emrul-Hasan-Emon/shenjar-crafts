@@ -42,6 +42,8 @@ export default async function ProductsPage() {
         nameBn: p.name_bn,
         descriptionEn: p.description_en,
         descriptionBn: p.description_bn,
+        price: p.price ?? null,
+        discountedPrice: p.discounted_price ?? null,
       };
       return item;
     })

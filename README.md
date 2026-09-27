@@ -35,14 +35,14 @@ The admin panel (`src/app/admin/(protected)/*`, protected by `middleware.ts` + `
 |---|---|---|
 | Banners | `banners` | Up to 5 images shown as the homepage hero slider, left to right. |
 | Categories | `categories` | Name (English required, Bangla optional), optional banner image, optional description (EN/BN). Everything else attaches to a category. |
-| Photocards | `photocards` | One promotional image per row: category, name (EN required, BN optional), and an optional longer description (EN/BN). Shown on `/products`. |
+| Products | `photocards` | One product image per row: category, name (EN required, BN optional), optional longer description (EN/BN), optional price, and optional discounted price. Shown on `/products`; the database table remains `photocards`. |
 | Raw Media | `raw_media` | One real photo *or* video per row: category, name (EN required, BN optional), optional description (EN/BN). Shown on `/our-work`. |
 | About Us | `about_us` (singleton row) | Free-text content (EN/BN) shown on `/about`. |
 
-Every photocard/raw-media card in `/admin` has both a **Delete** and an **Update** button — Update lets you
+Every product/raw-media card in `/admin` has both a **Delete** and an **Update** button — Update lets you
 change the name, description, category, and optionally replace the image/video file itself, all inline.
 
-### Clicking a photocard or raw-media item on the public site
+### Clicking a product or raw-media item on the public site
 
 `/products` and `/our-work` grid items are buttons, not links — clicking one opens `src/components/OrderModal.tsx`
 showing the full image/video and description (if set), with an **Order Now** button. Clicking that reveals two
@@ -130,11 +130,11 @@ deliberate exception — see Invoices below.
 
 The Category field is a required dropdown sourced from the same `categories` table used everywhere else
 (photocards, raw media) — `listCategories()` from `server/db/categories.ts`, matching the exact picker pattern
-used on the Photocard form. `finance_records.category` stores the category's `name_en` as plain text (there's
+used on the Product form. `finance_records.category` stores the category's `name_en` as plain text (there's
 no foreign key — this mirrors how Services→Our Work already matches categories by name elsewhere in this
 codebase), so renaming a category in `/admin/categories` won't retroactively update existing finance rows.
 There's no "add new category" option on the finance forms; a new category is created once under
-`/admin/categories` and then becomes available on Photocards, Raw Media, and Finance alike. Both Projects and
+`/admin/categories` and then becomes available on Products, Raw Media, and Finance alike. Both Projects and
 Spends can be deleted — from their detail page, or straight from the Actions column in their list
 (`deleteFinanceRecord`, with a confirm prompt either way) — the only finance entity without a delete option is
 a category itself (see the existing note on that above).

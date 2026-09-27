@@ -59,7 +59,7 @@ export default function CreatePartnerOrderForm({
       });
 
       router.push(`/partner/orders`);
-      notifyPanel();
+      notifyPanel("Order created successfully.");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create order");
@@ -69,18 +69,24 @@ export default function CreatePartnerOrderForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <section className="rounded-2xl border border-border bg-white p-6">
-        <h2 className="font-display text-lg font-semibold text-navy">Order Information</h2>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <form onSubmit={handleSubmit} className="partner-order-form">
+      <section className="partner-form-card">
+        <div className="partner-form-section-title">
+          <span>1</span>
           <div>
-            <label className="block text-sm font-medium text-navy">Category *</label>
+            <h2>Order details</h2>
+            <p>Required fields are kept first for faster mobile entry.</p>
+          </div>
+        </div>
+        <div className="partner-form-grid">
+          <div>
+            <label>Category *</label>
             {categories.length === 0 ? (
               <p className="mt-1 text-sm text-red-600">No categories available yet — ask the shop to add one.</p>
             ) : (
-              <select name="category" required defaultValue="" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm">
+              <select name="category" required defaultValue="">
                 <option value="" disabled>
-                  Choose a category
+                  Choose category
                 </option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.name}>
@@ -91,80 +97,80 @@ export default function CreatePartnerOrderForm({
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy">Order Name *</label>
-            <input name="name" required className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Order name *</label>
+            <input name="name" required placeholder="Example: Wall panel set" />
+          </div>
+          <div>
+            <label>Quantity</label>
+            <input name="quantity" type="number" step="any" min="0" inputMode="decimal" placeholder="Optional" />
+          </div>
+          <div>
+            <label>Price per quantity *</label>
+            <input name="price" type="number" step="any" min="0" inputMode="decimal" required placeholder="৳" />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-navy">Description — optional</label>
-            <textarea name="description" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Description</label>
+            <textarea name="description" rows={2} placeholder="Size, color, material, or special instructions" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy">Quantity — optional</label>
-            <input name="quantity" type="number" step="any" min="0" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Start date</label>
+            <input name="estimated_start_time" type="date" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy">Price per Quantity *</label>
-            <input
-              name="price"
-              type="number"
-              step="any"
-              min="0"
-              required
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-navy">Estimated Start Time — optional</label>
-            <input name="estimated_start_time" type="date" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-navy">Estimated Delivery Time — optional</label>
-            <input name="estimated_delivery_time" type="date" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Delivery date</label>
+            <input name="estimated_delivery_time" type="date" />
           </div>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-white p-6">
-        <h2 className="font-display text-lg font-semibold text-navy">Customer Information</h2>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <section className="partner-form-card">
+        <div className="partner-form-section-title">
+          <span>2</span>
           <div>
-            <label className="block text-sm font-medium text-navy">Customer Name — optional</label>
-            <input name="customer_name" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <h2>Customer details</h2>
+            <p>Optional, but useful for delivery and follow-up.</p>
+          </div>
+        </div>
+        <div className="partner-form-grid">
+          <div>
+            <label>Customer name</label>
+            <input name="customer_name" placeholder="Optional" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy">Gender — optional</label>
-            <select name="customer_gender" defaultValue="" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm">
-              <option value="">— not set —</option>
+            <label>Gender</label>
+            <select name="customer_gender" defaultValue="">
+              <option value="">Not set</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy">Mobile Number — optional</label>
-            <input name="customer_mobile" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Mobile number</label>
+            <input name="customer_mobile" type="tel" inputMode="tel" placeholder="Optional" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy">Email — optional</label>
-            <input name="customer_email" type="email" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Email</label>
+            <input name="customer_email" type="email" placeholder="Optional" />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-navy">Address — optional</label>
-            <textarea name="customer_address" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
+            <label>Address</label>
+            <textarea name="customer_address" rows={2} placeholder="Optional" />
           </div>
         </div>
       </section>
 
-      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="partner-form-error">{error}</p> : null}
 
-      <button
-        type="submit"
-        disabled={busy || categories.length === 0}
-        className="inline-flex items-center gap-2 rounded-full bg-wood px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
-      >
-        {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
-        {busy ? "Creating..." : "Create order"}
-      </button>
+      <div className="partner-form-actions">
+        <button type="button" onClick={() => router.back()} className="partner-secondary-button">
+          Cancel
+        </button>
+        <button type="submit" disabled={busy || categories.length === 0} className="partner-submit-button">
+          {busy ? <Spinner className="h-4 w-4 border-2 text-white" /> : null}
+          {busy ? "Creating..." : "Create order"}
+        </button>
+      </div>
     </form>
   );
 }

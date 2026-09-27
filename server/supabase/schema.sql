@@ -37,6 +37,8 @@ create table if not exists photocards (
   name_bn text,
   description_en text,
   description_bn text,
+  price numeric,
+  discounted_price numeric,
   created_at timestamptz not null default now()
 );
 
@@ -86,6 +88,21 @@ end $$;
 -- which state an existing install is in.
 alter table photocards add column if not exists description_en text;
 alter table photocards add column if not exists description_bn text;
+alter table photocards add column if not exists price numeric;
+alter table photocards add column if not exists discounted_price numeric;
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'photocards_discounted_price_lte_price'
+      and conrelid = 'photocards'::regclass
+  ) then
+    alter table photocards
+      add constraint photocards_discounted_price_lte_price
+      check (discounted_price is null or price is null or discounted_price <= price);
+  end if;
+end $$;
 alter table raw_media add column if not exists description_en text;
 alter table raw_media add column if not exists description_bn text;
 

@@ -66,8 +66,15 @@ export function getSupabaseConfig(): { environment: SupabaseEnvironment; url: st
   }
   return {
     environment,
-    url: required(process.env.DEV_SUPABASE_URL, "DEV_SUPABASE_URL", environment),
-    anonKey: required(process.env.DEV_SUPABASE_ANON_KEY, "DEV_SUPABASE_ANON_KEY", environment),
+    // In the browser bundle, Next exposes the selected development values through the fixed
+    // NEXT_PUBLIC_* names configured in next.config.ts. Keep DEV_* as the server-side source,
+    // but allow the browser-safe public names as the runtime fallback.
+    url: required(process.env.DEV_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL, "DEV_SUPABASE_URL", environment),
+    anonKey: required(
+      process.env.DEV_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      "DEV_SUPABASE_ANON_KEY",
+      environment
+    ),
   };
 }
 
