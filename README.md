@@ -211,23 +211,52 @@ At render time (`src/app/services/page.tsx`), each name is matched case-insensit
 `/admin` — no code change needed for that part. It also means the mapping itself (which categories a service
 points at) is a manual, curated decision living in that file, updated by hand when it makes sense.
 
-## Local development setup
+## Two Supabase environments
 
-1. Copy the Supabase project's URL and anon key into `.env.local` (not committed):
+This app talks to **two separate Supabase projects** — production and development — both configured in one
+`.env.local`, distinguished by variable name and chosen automatically by `NODE_ENV` (see
+`server/supabase/env.ts`, the one place that branches on this):
+
+| | `NODE_ENV=production` (Vercel, `next build`/`next start`) | anything else (`next dev`, and every script under `server/scripts/`) |
+|---|---|---|
+| URL | `SUPABASE_URL` | `DEV_SUPABASE_URL` |
+| Anon key | `SUPABASE_ANON_KEY` | `DEV_SUPABASE_ANON_KEY` |
+| Service role key | `SUPABASE_SERVICE_ROLE_KEY` | `DEV_SUPABASE_SERVICE_ROLE_KEY` |
+
+`.env.local` is gitignored — never committed, and holds all six values side by side. The production
+deployment on Vercel already has its three values configured via the Supabase integration, independent of
+this file — `.env.local` only matters for running the app on your own machine (dev or production mode).
+
+Next.js loads `.env.local` automatically in every environment; `next.config.ts` additionally bridges the
+resolved URL/anon key into the browser bundle (the anon key is meant to be public — real access control is
+Row Level Security, not secrecy of this key). The service role key is never exposed this way; it only
+appears in server-only code (`server/scripts/*.ts`, via `getSupabaseServiceRoleKey()`).
+
+**Local development setup:**
+
+1. Copy both projects' keys into `.env.local` (not committed):
    ```
-   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxx
-   SUPABASE_SERVICE_ROLE_KEY=xxxx   # only needed to run the migration script, never shipped to the browser
+   SUPABASE_URL=https://xxxx.supabase.co
+   SUPABASE_ANON_KEY=xxxx
+   SUPABASE_SERVICE_ROLE_KEY=xxxx
+
+   DEV_SUPABASE_URL=https://xxxx.supabase.co
+   DEV_SUPABASE_ANON_KEY=xxxx
+   DEV_SUPABASE_SERVICE_ROLE_KEY=xxxx   # only needed by scripts under server/scripts/, never shipped to the browser
    ```
-   These are also already present in Vercel via the Supabase integration for production — `.env.local` is
-   only for running the app on your own machine.
-2. In the Supabase SQL Editor, run `server/supabase/schema.sql` once (safe to re-run — every statement is
-   idempotent). This creates the tables, Row Level Security policies (public read, authenticated-only write),
-   and the public `media` Storage bucket.
-3. Create exactly one Supabase Auth user (Authentication → Users → Add user) — its email/password is the
-   `/admin` login. There's no self-service signup flow by design.
+2. In the development project's Supabase SQL Editor, run `server/supabase/schema.sql` once (safe to re-run —
+   every statement is idempotent). This creates the tables, Row Level Security policies (public read,
+   authenticated-only write), and the public `media` Storage bucket.
+3. Create exactly one Supabase Auth user in that project (Authentication → Users → Add user) — its
+   email/password is the `/admin` login. There's no self-service signup flow by design.
 4. `npm install`
-5. `npm run dev`
+5. `npm run dev` (uses the `DEV_SUPABASE_*` keys automatically, since `NODE_ENV` is "development")
+
+Scripts under `server/scripts/` (`migrate`, `import-raw-media.ts`, `seed-partners.ts`,
+`smoke-test-partners.ts`, `test:craft-design`) also default to the development project — they only ever
+touch production if you explicitly run them with `NODE_ENV=production`, and the two test/seed scripts
+(`seed-partners.ts`, `smoke-test-craft-design.ts` / `smoke-test-partners.ts`) refuse to run at all against
+production, on purpose (see `server/scripts/loadSupabaseEnv.ts`).
 
 ## One-time historical import
 

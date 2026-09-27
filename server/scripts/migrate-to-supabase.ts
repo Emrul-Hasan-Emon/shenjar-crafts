@@ -2,7 +2,8 @@
  * One-time import of src/data/real-images/** into Supabase.
  *
  * Run locally (never in CI/Vercel): npm run migrate
- * Requires .env.local with NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+ * Targets the "development" Supabase project by default; set NODE_ENV=production to target
+ * production instead (see README.md, "Two Supabase environments").
  *
  * Safe to re-run: categories are matched by name, and storage uploads use
  * upsert, so running it twice won't duplicate rows for the same file.
@@ -17,6 +18,8 @@ import { createPhotocard } from "../db/photocards";
 import { createRawMedia } from "../db/rawMedia";
 import { uploadFile, safeFileName } from "../supabase/storage";
 import { getImageDimensions } from "../lib/imageSize";
+import { getSupabaseUrl, getSupabaseServiceRoleKey } from "../supabase/env";
+import { loadSupabaseEnv } from "./loadSupabaseEnv";
 import type { MediaKind } from "../db/types";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -24,20 +27,10 @@ const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const REAL_IMAGES_DIR = path.join(REPO_ROOT, "src", "data", "real-images");
 const PHOTO_CARD_DIR_NAME = "Photo Card";
 
-loadEnvLocal(path.join(REPO_ROOT, ".env.local"));
+const environment = loadSupabaseEnv();
+console.log(`Running against the "${environment}" Supabase project.`);
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY.\n" +
-      "Add them to .env.local (see README.md) before running this script."
-  );
-  process.exit(1);
-}
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const supabase = createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 
 const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 const VIDEO_EXT = new Set([".mp4", ".mov", ".webm"]);
@@ -262,22 +255,6 @@ async function main() {
       `\n${flagged.length} item(s) were auto-classified by filename keyword — worth a quick check in /admin:`
     );
     flagged.forEach((line) => console.log(`  - ${line}`));
-  }
-}
-
-function loadEnvLocal(filePath: string) {
-  if (!fs.existsSync(filePath)) return;
-  for (const rawLine of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const eq = line.indexOf("=");
-    if (eq === -1) continue;
-    const key = line.slice(0, eq).trim();
-    let value = line.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    if (!(key in process.env)) process.env[key] = value;
   }
 }
 

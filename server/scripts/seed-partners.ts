@@ -4,31 +4,18 @@
  * for dev-environment testing only, not meant for production use.
  *
  * Run locally (never in CI/Vercel): npx tsx server/scripts/seed-partners.ts
- * Requires .env.local with NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+ * Only ever runs against the "development" Supabase project — refuses to run at all if
+ * NODE_ENV=production (see README.md, "Two Supabase environments").
  */
-import path from "node:path";
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import { partnerAuthEmail } from "../partners/authEmail";
+import { getSupabaseUrl, getSupabaseServiceRoleKey } from "../supabase/env";
+import { loadSupabaseEnv, assertNotProduction } from "./loadSupabaseEnv";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, "..", "..");
+loadSupabaseEnv();
+assertNotProduction("seed-partners.ts");
 
-loadEnvLocal(path.join(REPO_ROOT, ".env.local"));
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY.\n" +
-      "Add them to .env.local (see README.md) before running this script."
-  );
-  process.exit(1);
-}
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const supabase = createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 
 const PASSWORD = "123456";
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -131,22 +118,6 @@ async function main() {
 
   console.log("\nLogin credentials (password is the same for all: " + PASSWORD + "):");
   console.table(created);
-}
-
-function loadEnvLocal(filePath: string) {
-  if (!fs.existsSync(filePath)) return;
-  for (const rawLine of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const eq = line.indexOf("=");
-    if (eq === -1) continue;
-    const key = line.slice(0, eq).trim();
-    let value = line.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    if (!(key in process.env)) process.env[key] = value;
-  }
 }
 
 main().catch((err) => {

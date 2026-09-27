@@ -7,6 +7,8 @@
  *
  * Run with: npx tsx server/scripts/import-raw-media.ts
  * Not wired into any npm script — this is a manual, deliberate one-off.
+ * Targets the "development" Supabase project by default; set NODE_ENV=production to target
+ * production instead (see README.md, "Two Supabase environments").
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -16,11 +18,16 @@ import { createClient } from "@supabase/supabase-js";
 import { findOrCreateCategoryByName } from "../db/categories";
 import { createRawMedia } from "../db/rawMedia";
 import { uploadFile, safeFileName } from "../supabase/storage";
+import { getSupabaseUrl, getSupabaseServiceRoleKey } from "../supabase/env";
+import { loadSupabaseEnv } from "./loadSupabaseEnv";
 import type { MediaKind } from "../db/types";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const REAL_IMAGES_DIR = path.join(REPO_ROOT, "src", "data", "real-images");
+
+const environment = loadSupabaseEnv();
+console.log(`Running against the "${environment}" Supabase project.`);
 
 const RAW_FOLDERS: Record<string, string> = {
   Cabinet: "Cabinet",
@@ -42,16 +49,7 @@ const CONTENT_TYPES: Record<string, string> = {
   ".webm": "video/webm",
 };
 
-loadEnvLocal(path.join(REPO_ROOT, ".env.local"));
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error("Missing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env.local");
-  process.exit(1);
-}
-
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const supabase = createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 
 function kindForExt(ext: string): MediaKind | null {
   const lower = ext.toLowerCase();
@@ -162,22 +160,6 @@ async function main() {
   }
   console.log(`\nDone. Imported ${imported} item(s), skipped ${skipped}.`);
   console.log("All names/descriptions were left blank — fill them in via /admin/raw-media.");
-}
-
-function loadEnvLocal(filePath: string) {
-  if (!fs.existsSync(filePath)) return;
-  for (const rawLine of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const eq = line.indexOf("=");
-    if (eq === -1) continue;
-    const key = line.slice(0, eq).trim();
-    let value = line.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-    if (!(key in process.env)) process.env[key] = value;
-  }
 }
 
 main().catch((err) => {
