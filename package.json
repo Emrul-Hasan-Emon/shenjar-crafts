@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --import tsx --test \"server/**/*.test.ts\"",
+    "test:craft-design": "tsx server/scripts/smoke-test-craft-design.ts",
     "migrate": "tsx server/scripts/migrate-to-supabase.ts"
   },
   "dependencies": {

@@ -11,7 +11,7 @@ cost** — automatically, from the raw measurements.
 
 It is a completely standalone module. A Craft Design may optionally link to a Project (from the Finance
 module) purely so the two show up together in navigation — nothing else connects them. See
-[section 9](#9-not-connected-to-finance) for why that separation is deliberate.
+[section 10](#10-not-connected-to-finance) for why that separation is deliberate.
 
 ---
 
@@ -105,7 +105,7 @@ crafts_designs ("Wardrobe #1", quantity 2)
 ```
 
 Nothing in this whole tree ever writes into `finance_records` (the Finance module's table) — see
-[section 9](#9-not-connected-to-finance).
+[section 10](#10-not-connected-to-finance).
 
 ---
 
@@ -374,7 +374,19 @@ server/
 
 ---
 
-## 9. Not connected to Finance
+## 9. Testing
+
+Three layers, all detailed in [`craft-design-test-plan.md`](./craft-design-test-plan.md):
+
+1. `calculation.ts` has a full unit-test suite (`server/craft-design/designs/calculation.test.ts`, run with
+   `npm test`) covering the board-pooling math, wastage, default/override resolution, and the exact numbers
+   in the [demo walkthrough](#7-demo-walkthrough-tracing-one-sample-design-through-the-whole-pipeline) above.
+2. `server/scripts/smoke-test-craft-design.ts` (`npm run test:craft-design`) reproduces that same worked
+   example end-to-end against the real **development** Supabase project (see README.md, "Two Supabase
+   environments"), through the real server functions — catching wiring bugs the pure unit tests can't.
+3. The live admin UI itself is covered by a manual checklist.
+
+## 10. Not connected to Finance
 
 This is intentional and worth restating: `crafts_designs.finance_record_id` is a plain nullable foreign key
 with `on delete set null` — losing the linked project just clears the reference, it never cascades or
