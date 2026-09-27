@@ -1,14 +1,18 @@
 import { createClient } from "@server/supabase/server-client";
 import { listCraftsDesigns } from "@server/craft-design/designs/craftsDesigns";
 import { listFinanceRecords } from "@server/db/finance";
+import { listMeasurementLabels } from "@server/craft-design/measurement-labels/measurementLabels";
+import { listMaterials } from "@server/materials/materials";
 import CreateCraftsDesignForm from "./CreateCraftsDesignForm";
 import CraftDesignCard from "./CraftDesignCard";
 
 export default async function CraftDesignsPage() {
   const supabase = await createClient();
-  const [designs, projects] = await Promise.all([
+  const [designs, projects, labels, materialCatalog] = await Promise.all([
     listCraftsDesigns(supabase),
     listFinanceRecords(supabase, { type: "project" }),
+    listMeasurementLabels(supabase),
+    listMaterials(supabase),
   ]);
 
   return (
@@ -21,7 +25,11 @@ export default async function CraftDesignsPage() {
       </p>
 
       <div className="mt-8 max-w-xl">
-        <CreateCraftsDesignForm projects={projects.map((p) => ({ id: p.id, name: p.name }))} />
+        <CreateCraftsDesignForm
+          projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+          availableLabels={labels}
+          materialCatalog={materialCatalog}
+        />
       </div>
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">

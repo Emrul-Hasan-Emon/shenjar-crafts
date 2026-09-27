@@ -7,9 +7,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@server/supabase/client";
 import { deleteCraftsDesign } from "@server/craft-design/designs/craftsDesigns";
-import type { CraftsDesignWithProject } from "@server/craft-design/designs/craftsDesigns";
+import type { CraftsDesignListItem } from "@server/craft-design/designs/craftsDesigns";
 
-export default function CraftDesignCard({ design }: { design: CraftsDesignWithProject }) {
+export default function CraftDesignCard({ design }: { design: CraftsDesignListItem }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +33,10 @@ export default function CraftDesignCard({ design }: { design: CraftsDesignWithPr
       <Link href={`/admin/craft-designs/${design.id}`}>
         <p className="font-display text-base font-semibold text-navy sm:text-lg">{design.name_en}</p>
         <p className="mt-1 text-xs text-ink-soft sm:text-sm">Quantity: {design.quantity}</p>
+        <p className="mt-1 text-xs text-ink-soft sm:text-sm">
+          {design.partCount} part{design.partCount === 1 ? "" : "s"} · {design.materialCount} material
+          {design.materialCount === 1 ? "" : "s"}
+        </p>
         {design.project_name ? (
           <span className="mt-2 inline-block truncate rounded-full bg-wood-soft px-3 py-1 text-xs font-semibold text-wood max-w-full">
             Project: {design.project_name}

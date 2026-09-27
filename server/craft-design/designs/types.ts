@@ -38,8 +38,8 @@ export type CraftDesignMaterial = {
   created_at: string;
 };
 
-/** A board cost line, resolved and pooled — one row per (design, board) from the
- * craft_design_board_costs view. */
+/** A board cost line, resolved and pooled — one row per (design, board), computed by
+ * `computeBoardCosts` in `./calculation.ts`. */
 export type CraftDesignBoardCostLine = {
   crafts_design_id: string;
   board_id: string;

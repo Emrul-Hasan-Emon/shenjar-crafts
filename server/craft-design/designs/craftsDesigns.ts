@@ -16,15 +16,42 @@ export type CraftsDesignWithProject = CraftsDesign & {
   project_name: string | null;
 };
 
-export async function listCraftsDesigns(supabase: SupabaseClient): Promise<CraftsDesignWithProject[]> {
+/** A design for the list page's cards — adds a quick "how much is on this design" summary
+ * (part/material counts) so an admin can tell at a glance without opening it. Counts only,
+ * never the cost figures themselves — those still require the full calculation pipeline. */
+export type CraftsDesignListItem = CraftsDesignWithProject & {
+  partCount: number;
+  materialCount: number;
+};
+
+type CountEmbed = Array<{ count: number }> | null;
+
+function readCount(embed: CountEmbed): number {
+  return embed?.[0]?.count ?? 0;
+}
+
+export async function listCraftsDesigns(supabase: SupabaseClient): Promise<CraftsDesignListItem[]> {
   const { data, error } = await supabase
     .from("crafts_designs")
-    .select("*, finance_records(name)")
+    .select("*, finance_records(name), craft_design_measurement_label(count), craft_design_materials(count)")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data as Array<CraftsDesign & { finance_records: { name: string } | null }>).map((row) => {
-    const { finance_records, ...design } = row;
-    return { ...design, project_name: finance_records?.name ?? null };
+  return (
+    data as Array<
+      CraftsDesign & {
+        finance_records: { name: string } | null;
+        craft_design_measurement_label: CountEmbed;
+        craft_design_materials: CountEmbed;
+      }
+    >
+  ).map((row) => {
+    const { finance_records, craft_design_measurement_label, craft_design_materials, ...design } = row;
+    return {
+      ...design,
+      project_name: finance_records?.name ?? null,
+      partCount: readCount(craft_design_measurement_label),
+      materialCount: readCount(craft_design_materials),
+    };
   });
 }
 

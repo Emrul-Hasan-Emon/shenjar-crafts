@@ -5,7 +5,7 @@ export default function CostBreakdownPanel({ breakdown }: { breakdown: CraftDesi
     <section className="sticky top-24 rounded-2xl border border-border bg-white p-5">
       <h2 className="font-display text-lg font-semibold text-navy">Cost Breakdown</h2>
       <p className="mt-1 text-xs text-ink-soft">
-        Calculated by the database from the raw measurements — never a typed-in figure.
+        Calculated from the raw measurements — never a typed-in figure.
       </p>
 
       <div className="mt-4 space-y-3">
