@@ -71,23 +71,15 @@ for the full rationale and calculation pipeline; this section is the column-by-c
 | `craft_design_measurement_label_dimensions` | `craft_design_measurement_label_id` → `craft_design_measurement_label` (`on delete cascade`), `measurement_label_dimension_id` → `measurement_label_dimensions`, `value_inches`, `value_shuta`, `counts_toward_area` (default `true`) | The actual measured values — one row per dimension field the label defines. `counts_toward_area` is set **per instance**, not on the catalog: when a label has exactly 2 dimensions both count; when it has 3+, admin picks exactly 2 to flag (server-validated in `updateCraftDesignPartDimensions`). |
 | `craft_design_materials` | `crafts_design_id` → `crafts_designs` (`on delete cascade`), `material_id` → `materials`, `quantity` | Simple per-design material usage, no board logic involved. |
 
-### Calculation views
+### Calculation
 
-Three views, chained, all `create or replace view ... with (security_invoker = true) as ...` — see
-[`craft-design.md`](./craft-design.md#calculation-pipeline) for the full worked explanation:
-
-1. **`craft_design_part_resolved`** — resolves each part to its actual board (applying the
-   color/thickness override or catalog default) and computes that part's per-unit area in shuta²,
-   using `exp(sum(ln(x)))` to multiply together however many dimensions are flagged
-   `counts_toward_area` (Postgres has no `product()` aggregate).
-2. **`craft_design_board_costs`** — groups by `(crafts_design_id, board_id)`, pooling every part that
-   resolves to the same board before dividing into sheets: total area (× the design's own `quantity`,
-   applied *before* rounding) → `+wastage_percent` → `ceil(... / sheet_area)` sheets needed → `× price_per_sheet`.
-3. **`craft_design_material_costs`** — a straightforward `sum(quantity * unit_price)`, scaled by the
-   design's `quantity`.
-
-`server/craft-design/designs/costBreakdown.ts` reads views 2 and 3 and combines them into
-`{ boardLines, materialCost, boardCost, grandTotal }` for the UI.
+Board/material cost is **not** computed in the database for this module — see
+[`craft-design.md`](./craft-design.md#calculation-pipeline) for why (nothing here is ever trusted
+downstream the way `finance_records`' generated columns are) and for the full worked explanation. It used
+to be three chained `security_invoker` views; that logic now lives in
+`server/craft-design/designs/calculation.ts` (`resolvePart`, `computeBoardCosts`, `computeMaterialCost`),
+called by `server/craft-design/designs/costBreakdown.ts` (`getCraftDesignCostBreakdown`), which fetches the
+raw rows and returns `{ boardLines, materialCost, boardCost, grandTotal }` for the UI.
 
 ## Storage
 

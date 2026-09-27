@@ -866,74 +866,19 @@ create policy "admin delete media bucket" on storage.objects for delete
   using (bucket_id = 'media' and is_admin());
 
 -- ---------------------------------------------------------------------------
--- Craft Design calculation views — the database, not the app, does this math
+-- Craft Design calculation — moved to the app (server/craft-design/designs/calculation.ts)
 -- ---------------------------------------------------------------------------
--- Same principle as finance_records.total_price (a GENERATED ALWAYS column):
--- nothing here is computed by the browser. This needs a chain of views rather
--- than a single generated column because it aggregates *across* rows (pooling
--- every part that resolves to the same board before dividing into sheets).
---
--- security_invoker = true matters here: Postgres views default to running
--- with the *owner's* rights, which would silently bypass RLS on the base
--- tables — this makes the view respect the querying user's own permissions
--- instead. 1 inch = 8 shuta throughout.
-
--- Resolve each part to its board (color/thickness override, or whichever
--- catalog row is is_default) and its per-unit area in shuta². Postgres has no
--- PRODUCT() aggregate, so the area uses the standard exp(sum(ln(x))) trick to
--- fold however many dimensions are flagged counts_toward_area into one
--- product (all physical measurements are positive, so ln() is always
--- defined).
-create or replace view craft_design_part_resolved with (security_invoker = true) as
-select
-  cdml.id as craft_design_measurement_label_id,
-  cdml.crafts_design_id,
-  cdml.quantity,
-  b.id as board_id,
-  b.wastage_percent,
-  b.price_per_sheet,
-  (b.sheet_length_inches * 8 + b.sheet_length_shuta) *
-  (b.sheet_width_inches * 8 + b.sheet_width_shuta) as sheet_area_shuta2,
-  (
-    select exp(sum(ln(d.value_inches * 8 + d.value_shuta)))
-    from craft_design_measurement_label_dimensions d
-    where d.craft_design_measurement_label_id = cdml.id
-      and d.counts_toward_area
-  ) as unit_area_shuta2
-from craft_design_measurement_label cdml
-join board_colors dc on dc.is_default
-join board_thicknesses dt on dt.is_default
-join boards b
-  on b.color_id = coalesce(cdml.color_id, dc.id)
- and b.thickness_id = coalesce(cdml.thickness_id, dt.id);
-
--- Pool every part resolving to the same board: total area (+ wastage) →
--- sheets → cost. The design's own quantity multiplies in *before* the ceil()
--- rounding — building N units' worth of area and rounding once uses sheets
--- far more efficiently than rounding per-unit and then multiplying by N.
-create or replace view craft_design_board_costs with (security_invoker = true) as
-select
-  r.crafts_design_id,
-  r.board_id,
-  sum(r.unit_area_shuta2 * r.quantity) * cd.quantity as total_area_shuta2,
-  ceil(
-    sum(r.unit_area_shuta2 * r.quantity) * cd.quantity
-    * (1 + r.wastage_percent / 100.0) / r.sheet_area_shuta2
-  ) as sheets_needed,
-  ceil(
-    sum(r.unit_area_shuta2 * r.quantity) * cd.quantity
-    * (1 + r.wastage_percent / 100.0) / r.sheet_area_shuta2
-  ) * r.price_per_sheet as board_cost
-from craft_design_part_resolved r
-join crafts_designs cd on cd.id = r.crafts_design_id
-group by r.crafts_design_id, cd.quantity, r.board_id, r.wastage_percent, r.price_per_sheet, r.sheet_area_shuta2;
-
--- Materials: a simple sum, scaled by the design's own quantity.
-create or replace view craft_design_material_costs with (security_invoker = true) as
-select
-  cdm.crafts_design_id,
-  sum(cdm.quantity * m.unit_price) * cd.quantity as material_cost
-from craft_design_materials cdm
-join materials m on m.id = cdm.material_id
-join crafts_designs cd on cd.id = cdm.crafts_design_id
-group by cdm.crafts_design_id, cd.quantity;
+-- This used to be a chain of 3 views (craft_design_part_resolved ->
+-- craft_design_board_costs / craft_design_material_costs), on the same
+-- "the browser never computes money" principle as finance_records.total_price.
+-- That principle doesn't actually apply here: unlike finance_records, nothing
+-- ever writes a Craft Design's cost back into another table or trusts it for
+-- enforcement (see docs/craft-design.md "Not connected to Finance") — it's
+-- pure display for the one authenticated admin, who already has full DB
+-- access. So there's no real trust boundary the SQL views were protecting,
+-- and the calculation now lives in TypeScript where it's easier to read and
+-- test. These `drop view`s just clean up an old install; they're a no-op on
+-- a fresh one.
+drop view if exists craft_design_board_costs;
+drop view if exists craft_design_material_costs;
+drop view if exists craft_design_part_resolved;
