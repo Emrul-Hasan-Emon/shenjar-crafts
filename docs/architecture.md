@@ -59,6 +59,14 @@ Two mechanisms, chosen based on whether the calculation needs data from *one* ro
 Both approaches share the same guarantee: the browser can read the result, but cannot write it or
 influence it beyond supplying the raw inputs.
 
+**The one deliberate exception is Craft Design's cost calculation**, which lives in
+`server/craft-design/designs/calculation.ts` — plain TypeScript, not a view — because nothing ever
+writes its output back into another table or trusts it for enforcement (see
+[`craft-design.md`](./craft-design.md#not-connected-to-finance)). It's pure display for the one
+authenticated admin, who already has full database access, so there's no browser-trust boundary to
+defend by keeping that math in Postgres. When a calculation's result *does* get trusted downstream
+(an invoice total, anything Finance-connected), it stays in Postgres per the two mechanisms above.
+
 ## Bilingual content convention
 
 Every admin-managed, user-facing entity has `name_en` (required) + `name_bn` (optional), and often
