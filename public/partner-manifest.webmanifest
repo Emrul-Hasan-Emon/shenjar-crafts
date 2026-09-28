@@ -1,0 +1,41 @@
+{
+  "name": "Shenjar Crafts Partner Portal",
+  "short_name": "Shenjar Partner",
+  "description": "Partner dashboard for Shenjar Crafts orders, commission, and partner code management.",
+  "start_url": "/partner/login",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7fa",
+  "theme_color": "#172e40",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/images/partner_portal_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/partner_portal_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Partner Dashboard",
+      "short_name": "Dashboard",
+      "url": "/partner",
+      "icons": [{ "src": "/images/partner_portal_192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "My Orders",
+      "short_name": "Orders",
+      "url": "/partner/orders",
+      "icons": [{ "src": "/images/partner_portal_192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
+

@@ -46,8 +46,8 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/partner/login" className="inline-flex min-h-9 items-center hover:text-cream">
-                Partner Portal
+              <Link href="/partners" className="inline-flex min-h-9 items-center hover:text-cream">
+                Partners
               </Link>
             </li>
           </ul>
