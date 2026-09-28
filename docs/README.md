@@ -20,6 +20,7 @@ reference for the full database schema.
 | [`craft-design.md`](./craft-design.md) | The Craft Design costing module — Boards, Materials, Measurement Labels, and Craft Designs. The largest feature built after the initial site: given a furniture piece's measurements, it works out how many board sheets are needed and the total material + board cost. Includes the data model rationale, the calculation pipeline (in `server/craft-design/designs/calculation.ts`), the step-by-step execution flow, and a full worked demo walkthrough. |
 | [`craft-design-test-plan.md`](./craft-design-test-plan.md) | How Craft Design is tested — the automated unit-test suite (`npm test`) for the calculation logic, and a manual QA checklist for the live admin UI (Create/List/Detail/Invoice) that needs a real Supabase project. |
 | [`design-studio.md`](./design-studio.md) | The public AI sketch-to-concept tool. Built, then intentionally hidden from navigation pending a decision on a paid AI image provider. Code is intact at `/design-studio`, just unlinked. |
+| [`partner-portal-app.md`](./partner-portal-app.md) | The Partner Portal App/PWA implementation — public `/partners` page, install flow, service worker, manifest, app icons, platform behavior, testing, and maintenance notes. |
 
 ## Timeline (chronological, oldest first)
 
@@ -38,6 +39,7 @@ reference for the full database schema.
    elsewhere in the admin panel.
 
 6. **Premium public UI redesign (September 2026)** — richer navy/cream/gold styling, redesigned homepage hero and content flow, matching About/Services/Our Craft/Projects/Contact pages, and responsive/accessibility refinements. See [`ui-design.md`](./ui-design.md).
+7. **Partner Portal App/PWA (September 2026)** — public `/partners` page, installable Partner Portal PWA, app icons, service worker, and mobile-first partner entry flow. See [`partner-portal-app.md`](./partner-portal-app.md).
 
 ## Quick module map
 
@@ -47,3 +49,4 @@ reference for the full database schema.
 | Finance (projects, spends, invoices) | Invoices only, via unguessable link | `/admin/finance/*` | `finance_records`, `spend_images` |
 | Craft Design (boards, materials, measurement labels, designs) | No — fully internal | `/admin/boards`, `/admin/materials`, `/admin/measurement-labels`, `/admin/craft-designs` | `board_colors`, `board_thicknesses`, `boards`, `materials`, `measurement_label`, `measurement_label_dimensions`, `crafts_designs`, `craft_design_measurement_label`, `craft_design_measurement_label_dimensions`, `craft_design_materials` |
 | Design Studio (AI sketch tool) | Yes, but unlinked from nav | none (no admin management — it's a public tool) | none (stateless — calls an external free AI image API per request) |
+| Partner Portal App | Yes — `/partners` public entry page and install flow | `/partner/*` | Partner/auth data in Supabase; app shell uses `partner-manifest.webmanifest`, `partner-sw.js`, and partner app icons |
