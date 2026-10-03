@@ -3,14 +3,11 @@
 import { confirmPanel, notifyPanel } from "@/components/panel/PanelFeedback";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState, type FormEvent } from "react";
+import { useState } from "react";
 import { createClient } from "@server/supabase/client";
-import { createPhotocard, deletePhotocard } from "@server/db/photocards";
-import { uploadFile, safeFileName } from "@server/supabase/storage";
-import { compressImageIfNeeded } from "@/lib/compressImage";
-import { measureImage } from "@/lib/measureImage";
-import MediaPreviewInput from "../_components/MediaPreviewInput";
-import PhotocardCard, { parseProductPrice, type CategoryOption, type PhotocardItem } from "../_components/PhotocardCard";
+import { deletePhotocard } from "@server/db/photocards";
+import PhotocardCard, { type CategoryOption, type PhotocardItem } from "../_components/PhotocardCard";
+import ProductFormModal from "../_components/ProductFormModal";
 
 export default function ProductsManager({
   categories,
@@ -22,134 +19,37 @@ export default function ProductsManager({
   initialCategoryId?: string;
 }) {
   const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
   const [filter, setFilter] = useState<string>(initialCategoryId ?? "all");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const visible = filter === "all" ? items : items.filter((i) => i.categoryId === filter);
 
-  async function handleCreate(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const form = new FormData(e.currentTarget);
-      const categoryId = String(form.get("category_id") ?? "");
-      const nameEn = String(form.get("name_en") ?? "").trim();
-      const file = form.get("image") as File | null;
-      const price = parseProductPrice(form.get("price"), "Price", false);
-      const discountedPrice = parseProductPrice(form.get("discounted_price"), "Discounted price", false);
-      if (price !== null && discountedPrice !== null && discountedPrice > price) throw new Error("Discounted price cannot be greater than price");
-      if (!categoryId) throw new Error("Choose a category");
-      if (!nameEn) throw new Error("Enter a name");
-      if (!file || file.size === 0) throw new Error("Choose an image");
-
-      const supabase = createClient();
-      const compressed = await compressImageIfNeeded(file);
-      const dims = await measureImage(compressed);
-      const path = `photocards/${safeFileName(compressed.name)}`;
-      await uploadFile(supabase, path, compressed, compressed.type);
-      await createPhotocard(supabase, {
-        category_id: categoryId,
-        image_path: path,
-        width: dims?.width ?? null,
-        height: dims?.height ?? null,
-        name_en: nameEn,
-        name_bn: String(form.get("name_bn") ?? "").trim() || null,
-        description_en: String(form.get("description_en") ?? "").trim() || null,
-        description_bn: String(form.get("description_bn") ?? "").trim() || null,
-        price,
-        discounted_price: discountedPrice,
-      });
-
-      formRef.current?.reset();
-      notifyPanel();
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add product");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function handleDelete(id: string) {
     if (!await confirmPanel("Delete this product? This cannot be undone.")) return;
-    setBusy(true);
     try {
       await deletePhotocard(createClient(), id);
       notifyPanel("The product was deleted.");
       router.refresh();
     } catch (err) {
       notifyPanel(err instanceof Error ? err.message : "Delete failed. Please try again.", "error");
-    } finally {
-      setBusy(false);
     }
   }
 
   return (
-    <div className="space-y-8">
-      <form
-        ref={formRef}
-        onSubmit={handleCreate}
-        className="grid grid-cols-1 gap-4 rounded-2xl border border-border bg-white p-6 sm:grid-cols-2"
-      >
-        <div className="sm:col-span-2">
-          <MediaPreviewInput name="image" accept="image/*" required busy={busy} />
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <label className="block text-sm font-medium text-navy">Category *</label>
-          <select
-            name="category_id"
-            required
-            defaultValue={initialCategoryId ?? ""}
-            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm"
-          >
-            <option value="" disabled>
-              Choose a category
-            </option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <h1 className="font-display text-2xl font-semibold text-navy">Products</h1>
+          <p className="mt-1 text-sm text-ink-soft">Product images and prices shown on the Products page.</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-navy">Name (English) *</label>
-          <input name="name_en" required className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-navy">Name (Bangla)</label>
-          <input name="name_bn" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-navy">Price</label>
-          <input name="price" type="number" min="0" step="any" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-navy">Discounted Price</label>
-          <input name="discounted_price" type="number" min="0" step="any" className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-navy">Description (English) — optional</label>
-          <textarea name="description_en" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-navy">Description (Bangla) — optional</label>
-          <textarea name="description_bn" rows={2} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
-        </div>
-        {error ? <p role="alert" className="text-sm text-red-600 sm:col-span-2">{error}</p> : null}
-        <div className="sm:col-span-2">
-          <button
-            type="submit"
-            disabled={busy}
-            className="rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light disabled:opacity-50"
-          >
-            {busy ? "Uploading..." : "Add product"}
-          </button>
-        </div>
-      </form>
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
+          className="shrink-0 rounded-full bg-wood px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-wood-light"
+        >
+          + Create
+        </button>
+      </div>
 
       <div>
         <div className="flex flex-wrap gap-2">
@@ -183,6 +83,7 @@ export default function ProductsManager({
           {visible.length === 0 ? <p className="text-sm text-ink-soft">No products here yet.</p> : null}
         </div>
       </div>
+      {creating ? <ProductFormModal categories={categories} initialCategoryId={initialCategoryId} onClose={() => setCreating(false)} /> : null}
     </div>
   );
 }

@@ -29,18 +29,10 @@ export default async function AdminProductsPage({
   }));
 
   return (
-    <div>
-      <h1 className="font-display text-2xl font-semibold text-navy">Products</h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        Product images and prices shown on the Products page.
-      </p>
-      <div className="mt-8">
-        <ProductsManager
-          categories={categories.map((c) => ({ id: c.id, name: c.name_en }))}
-          items={items}
-          initialCategoryId={category}
-        />
-      </div>
-    </div>
+    <ProductsManager
+      categories={categories.map((c) => ({ id: c.id, name: c.name_en }))}
+      items={items}
+      initialCategoryId={category}
+    />
   );
 }
