@@ -99,6 +99,18 @@ worker has no caches, but if admin caching is ever added, scope that cleanup to 
 9. Sign in to both on one phone: signing into Partner leaves the Admin session signed in, and vice versa.
 10. The homepage `<head>` has no `rel=manifest`; `/partners` and `/partner/*` link the Partner manifest; `/admin/*` links the Admin one.
 
+## Testing the install on a phone
+
+Browsers only offer app install on a **secure origin**: https://, or localhost. Opening the dev server by its Wi-Fi address (`http://192.168.x.x:3000`) can never install: the service worker API is not even available there, and the Install button will say so. Ways to test on a real phone:
+
+1. Use the deployed HTTPS site (simplest, and what admins will actually use).
+2. USB-connect an Android phone, open `chrome://inspect` on the computer, add port forwarding `3000 → localhost:3000`, then open `http://localhost:3000/admin` on the phone. localhost counts as secure.
+3. Run an HTTPS tunnel (e.g. `cloudflared tunnel --url http://localhost:3000`) and open its https URL on the phone. Add the tunnel hostname to `allowedDevOrigins` in `next.config.ts` first.
+
+Over the Wi-Fi address the dev page also needs `allowedDevOrigins` (already set for `192.168.*.*` and `10.*.*.*`, restart `npm run dev` after changing it); otherwise it never hydrates and no button works.
+
+One tap is as automatic as it gets: the Install button opens the browser's install dialog, and the user confirms once. Browsers do not allow silent installs. If the browser has not offered the dialog, the button now says why (not HTTPS, in-app browser, iPhone, app still preparing, or already installed).
+
 ## Known limits
 
 - Real install prompts need HTTPS (or localhost). They can't be fully exercised on a plain-HTTP LAN address.

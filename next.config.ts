@@ -5,6 +5,10 @@ const supabaseUrl = tryGetSupabaseUrl();
 const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : "*.supabase.co";
 
 const nextConfig: NextConfig = {
+  // Dev only: lets a phone on the same Wi-Fi (http://192.168.x.x:3000) load the dev server. Without this,
+  // Next blocks the cross-origin dev assets/HMR socket, the page never hydrates, and buttons do nothing.
+  // Installing the PWA still needs https:// or localhost, see docs/admin-panel-app.md.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
   // Bridges the environment-specific Supabase URL/anon key (SUPABASE_URL/SUPABASE_ANON_KEY in
   // production, DEV_SUPABASE_URL/DEV_SUPABASE_ANON_KEY in development — see
   // server/supabase/env.ts) into the browser bundle under fixed names, since only

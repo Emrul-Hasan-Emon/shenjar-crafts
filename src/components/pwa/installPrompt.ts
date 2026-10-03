@@ -87,3 +87,39 @@ export async function promptInstall(): Promise<"accepted" | "dismissed" | null> 
     return null;
   }
 }
+
+/** Resolves true as soon as the browser offers an install prompt, or false after `ms`. */
+export function waitForPrompt(ms: number): Promise<boolean> {
+  if (deferredPrompt) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const done = (result: boolean) => {
+      clearTimeout(timer);
+      listeners.delete(check);
+      resolve(result);
+    };
+    const check = () => {
+      if (deferredPrompt) done(true);
+    };
+    const timer = setTimeout(() => done(false), ms);
+    listeners.add(check);
+  });
+}
+
+/** Plain-language reason the browser isn't offering a one-tap install, so the user isn't left guessing. */
+export async function explainNoPrompt(appName: string): Promise<string> {
+  const ua = navigator.userAgent;
+  if (!window.isSecureContext) {
+    return `Automatic install only works on a secure (https://) address, and this page is ${window.location.origin}. Open ${appName} from its https:// address, then try again.`;
+  }
+  if (/FBAN|FBAV|Instagram|Line\/|; wv\)|WhatsApp|Messenger/i.test(ua)) {
+    return `This in-app browser can't install apps. Open this page in Chrome${state.ios ? " or Safari" : ""} and try again.`;
+  }
+  if (state.ios) {
+    return "iPhone and iPad don't allow one-tap install. In Safari, tap the Share button, then “Add to Home Screen”.";
+  }
+  const registration = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration("/admin") : undefined;
+  if (!registration?.active) {
+    return `${appName} is still getting ready. Wait a few seconds and tap Install app again.`;
+  }
+  return `Your browser hasn't offered to install ${appName} for this page. It may already be installed on this device, or Chrome may be waiting. You can still use the browser menu (⋮) and choose “Install app”.`;
+}
