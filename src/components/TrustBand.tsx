@@ -31,27 +31,27 @@ const PILLARS = [
 
 export default function TrustBand() {
   return (
-    <section className="relative overflow-hidden bg-ink-dark py-8 sm:py-16 lg:py-20">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white to-cream-dark py-8 sm:py-16 lg:py-20">
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold tracking-[0.2em] text-wood-light uppercase">
+          <p className="text-xs font-semibold tracking-[0.2em] text-wood uppercase sm:text-sm">
             Why Shenjar Crafts
           </p>
-          <h2 className="font-display mt-3 text-3xl font-semibold text-white sm:text-4xl">
+          <h2 className="font-display mt-3 text-2xl font-semibold text-navy sm:text-4xl">
             Craftsmanship you can trust
           </h2>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:mt-14 sm:gap-8 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-14 sm:gap-6 lg:grid-cols-4">
           {PILLARS.map((pillar) => (
-            <div key={pillar.title} className="text-center">
-              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-wood-light sm:h-14 sm:w-14">
+            <div key={pillar.title} className="studio-card rounded-2xl border border-border bg-white p-4 text-center sm:p-7">
+              <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-brand-cyan text-white shadow-[0_8px_18px_#2e56d640] sm:h-14 sm:w-14">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={1.4}
+                  strokeWidth={1.6}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className="h-5 w-5 sm:h-6 sm:w-6"
@@ -59,10 +59,10 @@ export default function TrustBand() {
                   {pillar.icon}
                 </svg>
               </span>
-              <p className="font-display mt-3 text-sm font-semibold text-white sm:mt-5 sm:text-base">
+              <p className="font-display mt-3 text-sm font-semibold text-navy sm:mt-5 sm:text-base">
                 {pillar.title}
               </p>
-              <p className="mt-1.5 text-xs leading-relaxed text-white/60 sm:mt-2 sm:text-sm">
+              <p className="mt-1.5 text-xs leading-relaxed text-ink-soft sm:mt-2 sm:text-sm">
                 {pillar.description}
               </p>
             </div>

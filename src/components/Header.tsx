@@ -48,7 +48,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-cream/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border bg-white/90 shadow-[0_4px_20px_#1b3a8a0d] backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between gap-3 xl:h-20">
         <Logo />
 
@@ -89,7 +89,7 @@ export default function Header() {
             href={site.whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-wood px-5 py-2.5 text-sm font-semibold text-white  transition-colors hover:bg-navy"
+            className="rounded-full bg-gradient-to-br from-[#ffd166] to-[#ffab2e] px-5 py-2.5 text-sm font-bold text-navy shadow-[0_6px_16px_#ffab2e59] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_#ffab2e73]"
           >
             Let’s Talk
           </a>
@@ -130,7 +130,7 @@ export default function Header() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 aria-current={pathname === link.href ? "page" : undefined}
-                className={`rounded-xl px-3 py-3 text-sm font-medium ${pathname === link.href ? "bg-navy text-cream" : "bg-white/60 text-navy hover:bg-cream-dark"}`}
+                className={`rounded-xl px-3 py-3 text-sm font-medium ${pathname === link.href ? "bg-navy text-cream" : "bg-cream-dark/70 text-navy hover:bg-cream-dark"}`}
               >
                 {link.label}
               </Link>
@@ -138,7 +138,7 @@ export default function Header() {
             <Link
               href="/partners"
               onClick={() => setOpen(false)}
-              className="rounded-xl border border-navy/10 bg-white/70 px-3 py-3 text-sm font-semibold text-navy hover:bg-cream-dark"
+              className="rounded-xl border border-navy/10 bg-white px-3 py-3 text-sm font-semibold text-navy hover:bg-cream-dark"
             >
               Partners
             </Link>
@@ -146,7 +146,7 @@ export default function Header() {
               href={site.whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="col-span-2 mt-2 rounded-full bg-wood px-5 py-2.5 text-center text-sm font-semibold text-white"
+              className="col-span-2 mt-2 rounded-full bg-gradient-to-br from-[#ffd166] to-[#ffab2e] px-5 py-3 text-center text-sm font-bold text-navy"
             >
               WhatsApp: {site.phoneDisplay}
             </a>

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseAnonKey, getSupabaseUrl } from "./supabase/env";
+import { authCookieOptions, panelForPath, PANEL_HEADER } from "./supabase/panel";
 
 const ADMIN_LOGIN_PATH = "/admin/login";
 const PARTNER_LOGIN_PATH = "/partner/login";
@@ -13,16 +14,26 @@ const PARTNER_LOGIN_PATH = "/partner/login";
  * middleware.ts.
  */
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  // Tell server components/actions which panel this is, so they read the right session cookie.
+  // Overwrites any client-supplied value.
+  const panel = panelForPath(request.nextUrl.pathname);
+  // Rebuilt on every use so a session refresh (request.cookies.set) is reflected in the forwarded cookie header.
+  const forwardHeaders = () => {
+    const headers = new Headers(request.headers);
+    headers.set(PANEL_HEADER, panel);
+    return headers;
+  };
+  let response = NextResponse.next({ request: { headers: forwardHeaders() } });
 
   const supabase = createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    cookieOptions: authCookieOptions(panel),
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
+        response = NextResponse.next({ request: { headers: forwardHeaders() } });
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
         });

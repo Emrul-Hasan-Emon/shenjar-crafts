@@ -63,13 +63,14 @@ Key settings:
 - `name`: `Shenjar Crafts Partner Portal`
 - `short_name`: `Shenjar Partner`
 - `start_url`: `/partner/login`
-- `scope`: `/`
+- `id`: `/partner/login`
+- `scope`: `/partner`
 - `display`: `standalone`
 - `orientation`: `portrait`
 - `background_color`: `#f5f7fa`
 - `theme_color`: `#172e40`
 
-The `start_url` is important because the installed app opens directly to the partner login page. The `scope` is `/` so the install prompt can be offered from the public `/partners` page while still launching the partner portal.
+The `start_url` is important because the installed app opens directly to the partner login page. The `scope` is `/partner` (which, as a path prefix, also covers the public `/partners` page) so it does not overlap the separately installable [Admin app](./admin-panel-app.md) under `/admin`. The explicit `id` keeps the app identity stable.
 
 The manifest also defines app shortcuts:
 
@@ -107,7 +108,7 @@ Important behavior:
 - It registers `/partner-sw.js` with root scope `/`.
 - Failures are intentionally ignored because PWA support is progressive enhancement; the portal should still work as a normal web page.
 
-The component is rendered globally from `src/app/layout.tsx`, so PWA registration is available across the site.
+The component is rendered from `src/app/partner/layout.tsx` and the public `/partners` page, not globally, so admins and public visitors never register the Partner worker. The Partner session also uses its own cookie (`sb-partner-auth-token`) so it can run alongside the Admin app; see [`admin-panel-app.md`](./admin-panel-app.md).
 
 ### `src/components/PartnerInstallButton.tsx`
 
@@ -158,11 +159,9 @@ The page also includes Android and iPhone install guidance for browsers that can
 
 ## Files modified
 
-### `src/app/layout.tsx`
+### `src/app/partner/layout.tsx`, `src/components/pwa/partnerMetadata.ts`
 
-The global layout was updated with PWA metadata and service worker registration.
-
-The metadata now includes the Partner Portal manifest and app icon configuration. The layout also renders `PartnerPwaRegistration`, which registers the service worker from the browser.
+The Partner manifest, icons and `PartnerPwaRegistration` are applied by the Partner layout and the public `/partners` page. They were originally in the root layout, but that made the whole site (including `/admin`) advertise the Partner app. The root layout now declares no manifest.
 
 ### `src/components/Header.tsx`
 

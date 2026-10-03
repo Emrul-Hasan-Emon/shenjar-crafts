@@ -11,17 +11,25 @@ Both apps live on one origin, so they must not step on each other.
 | | Partner Portal | Admin Panel |
 |---|---|---|
 | Manifest | `public/partner-manifest.webmanifest` | `public/admin-manifest.webmanifest` |
-| App `id` | defaults to `/partner/login` | `/admin` (explicit, so the two installs stay distinct) |
-| `start_url` / `scope` | `/partner/login` / `/` | `/admin` / `/admin` |
+| App `id` | `/partner/login` | `/admin` (distinct ids make the browser treat them as two apps) |
+| `start_url` / `scope` | `/partner/login` / `/partner` | `/admin` / `/admin` |
 | Service worker | `public/partner-sw.js`, scope `/` | `public/admin-sw.js`, scope `/admin` |
 | Caching | network-first, caches partner pages | **caches nothing** (see below) |
 | Icons | `partner_portal_*.png` | `admin_app_{180,192,512}.png` |
-| Registered from | root layout (every page) | `src/app/admin/layout.tsx` (admin pages only) |
+| Registered from | `src/app/partner/layout.tsx` and `/partners` | `src/app/admin/layout.tsx` (admin pages only) |
 
 The root layout still advertises the Partner manifest to the public site. `src/app/admin/layout.tsx` overrides
 `manifest`, `appleWebApp` and `icons` metadata for everything under `/admin`, so "Install" from the admin panel
 installs the Admin app. Because the admin worker's scope (`/admin`) is more specific than the partner worker's (`/`),
 it controls admin pages even though both are registered.
+
+## Separate apps, separate logins
+
+Admin and Partner are two independent installs that can live on the same phone: different name, icon, `id` and non-overlapping scopes (`/admin` vs `/partner`), each with its own home-screen icon and window.
+
+They also keep **separate sign-ins**. Both apps share one origin, and browsers share cookies per origin, so a single Supabase session cookie would sign one app out when the other signed in. Instead each panel stores its session under its own cookie (`server/supabase/panel.ts`): Admin keeps Supabase's default cookie name (existing admin sessions stay valid), Partner uses `sb-partner-auth-token`. Middleware tags `/admin` and `/partner` requests with an `x-shenjar-panel` header so server components and actions read the right cookie; the browser client picks it from `location.pathname`. Partners signed in before this change had to sign in once more.
+
+The manifest, icons and service-worker registration are also panel-specific: the root layout declares none, `src/app/admin/layout.tsx` declares Admin's, and `src/app/partner/layout.tsx` (plus the public `/partners` page) declares Partner's (`src/components/pwa/partnerMetadata.ts`). The public homepage advertises neither.
 
 ## Files
 
@@ -88,6 +96,8 @@ worker has no caches, but if admin caching is ever added, scope that cleanup to 
 6. After installing, the Install buttons read "App installed" and the dashboard banner disappears.
 7. Stop the server (or go offline) and open an admin URL; the "You're offline" page appears and Try again reloads.
 8. The Partner Portal app still installs and works, and both apps can be installed side by side.
+9. Sign in to both on one phone: signing into Partner leaves the Admin session signed in, and vice versa.
+10. The homepage `<head>` has no `rel=manifest`; `/partners` and `/partner/*` link the Partner manifest; `/admin/*` links the Admin one.
 
 ## Known limits
 

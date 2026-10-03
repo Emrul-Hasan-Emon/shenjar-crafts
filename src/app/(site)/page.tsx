@@ -262,7 +262,7 @@ export default async function Home() {
 
       {featuredProducts.length > 0 ? (
 
-        <section className="py-8 sm:py-16 lg:py-20">
+        <section className="bg-cream-dark/70 py-8 sm:py-16 lg:py-20">
 
           <Container>
 
@@ -510,7 +510,7 @@ export default async function Home() {
 
       {featuredWork.length > 0 ? (
 
-        <section className="bg-cream-dark/60 py-8 sm:py-16 lg:py-20">
+        <section className="py-8 sm:py-16 lg:py-20">
 
           <Container>
 

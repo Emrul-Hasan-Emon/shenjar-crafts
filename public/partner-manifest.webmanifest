@@ -1,9 +1,10 @@
 {
+  "id": "/partner/login",
   "name": "Shenjar Crafts Partner Portal",
   "short_name": "Shenjar Partner",
   "description": "Partner dashboard for Shenjar Crafts orders, commission, and partner code management.",
   "start_url": "/partner/login",
-  "scope": "/",
+  "scope": "/partner",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f5f7fa",

@@ -20,6 +20,7 @@ export default function SectionHeading({
       <h2 className="font-display text-2xl leading-tight font-semibold text-navy sm:text-4xl">
         {title}
       </h2>
+      <span aria-hidden="true" className={`mt-3 block h-1 w-12 rounded-full bg-gradient-to-r from-brand to-brand-cyan sm:mt-4 ${isCenter ? "mx-auto" : ""}`} />
       {description ? (
         <p
           className={`mt-2 text-sm leading-relaxed text-ink-soft sm:mt-4 sm:text-lg ${

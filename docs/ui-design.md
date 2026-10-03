@@ -4,9 +4,9 @@ Updated: 22 September 2026.
 
 ## Design goal
 
-Shenjar Crafts should feel like a premium, attractive craft studio: warm, distinctive, and visually engaging, with the work itself at the center. It is a portfolio and custom-project enquiry experience, not an ecommerce checkout.
+Shenjar Crafts should feel light, professional and eye-catching: a bright, clean studio site where the work itself is the focus.
 
-The accepted direction combines deep navy feature sections, warm cream backgrounds, gold accents, prominent imagery, serif headlines, and restrained card depth. A very minimal ivory treatment was explored but replaced after feedback that it felt flatter than the original. Preserve the richer current direction when extending the site.
+**October 2026 redesign:** the earlier navy/cream/gold direction was replaced after feedback that the off-white background was not eye-catching enough. The public site now uses a pure-white base with soft blue tints, the Shenjar logo blue as the brand colour, and a warm amber accent reserved for calls to action. Deep navy is kept only for text, the footer and primary buttons.
 
 ## Scope and architecture
 
@@ -18,22 +18,22 @@ These changes do not add checkout, payments, a new database schema, or new authe
 
 ## Color and typography reference
 
-These are the current `.studio-theme` tokens, not the base `:root` palette:
+Current `.studio-theme` tokens in `globals.css`. Token names (`cream`, `navy`, `wood`) are kept so existing components keep working, but their meaning changed: `cream` is now white, and `wood` is the warm accent.
 
 | Token | Value | Purpose |
 |---|---|---|
-| `cream` | `#F7EFDF` | Main public background |
-| `cream-dark` | `#EBDCC3` | Alternate sections and warm surfaces |
-| `wood-soft` | `#EFDBB8` | Icon backgrounds and badges |
-| `navy` / `ink` | `#162B3C` | Primary text and strong controls |
-| `navy-light` | `#28475B` | Secondary navy and hover treatment |
-| `wood` | `#995D32` | Rich wood accent |
-| `wood-light` | `#D9B77C` | Gold highlights |
-| `ink-soft` | `#686052` | Supporting text |
-| `ink-dark` | `#102330` | Dark surfaces and image overlays |
-| `border` | `#DDCFB9` | Warm dividers |
+| `cream` | `#FFFFFF` | Page background |
+| `cream-dark` | `#EEF4FF` | Alternating soft-blue section tint |
+| `wood-soft` | `#FFECCD` | Icon backgrounds and badges |
+| `navy` | `#0F2257` | Headings, footer, primary buttons |
+| `navy-light` | `#2A4BB5` | Hover state for navy controls |
+| `wood` | `#C2570C` | Warm accent text (eyebrows, links) |
+| `wood-light` | `#FFBF47` | Amber highlights on dark/blue surfaces |
+| `ink` / `ink-soft` | `#16244D` / `#55648A` | Body and supporting text |
+| `border` | `#DBE5F7` | Dividers and card borders |
+| `brand` / `brand-deep` / `brand-cyan` | `#2E56D6` / `#1C3796` / `#19A9D6` | Logo-blue gradients: specialties strip, page banners, CTA band, icon tiles, accent bars |
 
-The hero and page introductions use a deep `#102B3B` background with a subtle radial gradient. The hero headline emphasis uses `#E8C48A`; its primary action uses `#E6BD7B`.
+CTA buttons use an amber gradient (`#FFD166 → #FFAB2E`) with navy text for contrast. The hero is light (white to pale blue washes with a floating framed banner); inner-page banners (`PageIntro`) and the closing CTA band use the blue gradient. Sections alternate white and soft blue. The brand-blue colours are also exposed as Tailwind utilities (`from-brand`, `to-brand-cyan`).
 
 Playfair Display remains the display face and Inter the body face, configured in the root layout. Public display text uses balanced wrapping and slightly tightened letter spacing. Maintain clear contrast and readable body copy rather than shrinking text to increase density.
 
@@ -45,7 +45,7 @@ Source: [`src/app/(site)/page.tsx`](../src/app/\(site\)/page.tsx).
 
 ### Hero
 
-- A deep navy stage establishes a strong first impression immediately beneath the navbar.
+- A light, airy stage with soft blue/cyan washes establishes the first impression beneath the navbar.
 - The two-line headline emphasizes “Crafted by us.” in gold italic display type.
 - Desktop places the framed banner on the left and the heading, supporting copy, benefits, and actions on the right.
 - The banner spans both text rows, extending with the adjacent content instead of imposing a fixed desktop aspect ratio. This avoids the previous large heading-to-bullets gap caused by equal-height rows.

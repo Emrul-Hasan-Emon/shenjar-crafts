@@ -5,7 +5,7 @@ import { site } from "@/data/site";
 
 export default function Footer() {
   return (
-    <footer className="bg-navy text-cream">
+    <footer className="border-t-4 border-wood-light bg-navy text-cream">
       <Container className="grid grid-cols-2 gap-6 py-8 sm:grid-cols-3 sm:gap-10 sm:py-14">
         <div className="col-span-2 sm:col-span-1">
           <Logo dark />

@@ -4,9 +4,12 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import PageIntro from "@/components/PageIntro";
 import PartnerInstallButton from "@/components/PartnerInstallButton";
+import PartnerPwaRegistration from "@/components/PartnerPwaRegistration";
+import { partnerPwaMetadata } from "@/components/pwa/partnerMetadata";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
+  ...partnerPwaMetadata,
   title: "Partners",
   description:
     "Join the Shenjar Crafts partner network, create customer orders, share your partner code, and manage commissions through the Partner Portal app.",
@@ -36,6 +39,7 @@ const steps = [
 export default function PartnersPage() {
   return (
     <>
+      <PartnerPwaRegistration />
       <PageIntro
         eyebrow="Partners"
         title="Grow with Shenjar Crafts. Bring customers, track orders, earn commission."
