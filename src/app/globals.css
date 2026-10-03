@@ -377,3 +377,10 @@ button:not(:disabled), select { cursor: pointer; }
  .partner-form-actions { position:fixed; left:12px; right:12px; bottom:76px; z-index:41; display:grid; grid-template-columns:.82fr 1.18fr; border:1px solid #d9e5ec; border-radius:16px; background:#fffffff2; padding:7px; box-shadow:0 12px 36px #10233024; backdrop-filter:blur(16px); }
  .partner-secondary-button,.partner-submit-button { min-height:44px; padding:9px 12px; }
 }
+
+/* Install-app (PWA) controls shared by the panels */
+.panel-install-btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 20px; border-radius:8px; background:#245a72; color:#fff; font-size:13px; font-weight:600; }
+.panel-install-btn:disabled { opacity:.6; cursor:default; }
+.panel-install-card { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; padding:16px; border:1px solid #d5dfe8; border-radius:12px; background:#fff; }
+.panel-install-card strong { display:block; color:#172e40; font-size:14px; }
+.panel-install-card p { margin-top:2px; color:#637487; font-size:12px; }

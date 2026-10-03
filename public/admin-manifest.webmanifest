@@ -1,0 +1,55 @@
+{
+  "id": "/admin",
+  "name": "Shenjar Crafts Admin",
+  "short_name": "Shenjar Admin",
+  "description": "Admin workspace for Shenjar Crafts: projects, finance, partners, workshop costing and website content.",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#f4f7fa",
+  "theme_color": "#172e40",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/images/admin_app_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/admin_app_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/admin_app_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/admin",
+      "icons": [{ "src": "/images/admin_app_192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "New Project",
+      "short_name": "New project",
+      "url": "/admin/finance/projects/new",
+      "icons": [{ "src": "/images/admin_app_192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Finance",
+      "url": "/admin/finance",
+      "icons": [{ "src": "/images/admin_app_192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Partners",
+      "url": "/admin/partners",
+      "icons": [{ "src": "/images/admin_app_192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

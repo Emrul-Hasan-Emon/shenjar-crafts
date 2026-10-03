@@ -6,6 +6,7 @@ import { listPhotocards } from "@server/db/photocards";
 import { listRawMedia } from "@server/db/rawMedia";
 import { listFinanceRecords } from "@server/db/finance";
 import { getAdminPartnerStats } from "@server/partners/dashboard";
+import AdminInstallBanner from "./_components/AdminInstallBanner";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -34,6 +35,8 @@ export default async function AdminDashboard() {
       <p className="mt-1 text-sm text-ink-soft">
         Manage your workshop, business, and website in one place.
       </p></div><div className="panel-quick-actions"><Link href="/admin/finance/projects/new">+ New project</Link><Link href="/admin/craft-designs">Open workshop</Link></div></div>
+
+      <AdminInstallBanner />
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
         {cards.map((card) => (

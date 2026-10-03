@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@server/supabase/client";
 import Spinner from "@/components/Spinner";
+import InstallAppButton from "@/components/pwa/InstallAppButton";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -29,9 +30,10 @@ export default function AdminLoginPage() {
 
   return (
     <div className="panel-theme panel-login">
+      <div className="w-full max-w-sm space-y-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border border-border bg-white p-8 shadow-sm"
+        className="w-full rounded-2xl border border-border bg-white p-8 shadow-sm"
       >
         <h1 className="font-display text-xl font-semibold text-navy">Admin Login</h1>
         <p className="mt-1 text-sm text-ink-soft">Shenjar Crafts content management</p>
@@ -70,6 +72,15 @@ export default function AdminLoginPage() {
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
+
+      <aside className="panel-install-card">
+        <div className="min-w-0">
+          <strong>Use Shenjar Admin as an app</strong>
+          <p>Add it to your phone&apos;s home screen.</p>
+        </div>
+        <InstallAppButton appName="Shenjar Admin" className="panel-install-btn">Install app</InstallAppButton>
+      </aside>
+      </div>
     </div>
   );
 }

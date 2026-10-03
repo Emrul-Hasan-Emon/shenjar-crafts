@@ -21,6 +21,7 @@ reference for the full database schema.
 | [`craft-design-test-plan.md`](./craft-design-test-plan.md) | How Craft Design is tested — the automated unit-test suite (`npm test`) for the calculation logic, and a manual QA checklist for the live admin UI (Create/List/Detail/Invoice) that needs a real Supabase project. |
 | [`design-studio.md`](./design-studio.md) | The public AI sketch-to-concept tool. Built, then intentionally hidden from navigation pending a decision on a paid AI image provider. Code is intact at `/design-studio`, just unlinked. |
 | [`partner-portal-app.md`](./partner-portal-app.md) | The Partner Portal App/PWA implementation — public `/partners` page, install flow, service worker, manifest, app icons, platform behavior, testing, and maintenance notes. |
+| [`admin-panel-app.md`](./admin-panel-app.md) | The Admin Panel App/PWA — its own manifest, service worker, icons, install entry points (`/admin/install`, dashboard, login), and how it coexists with the Partner Portal app. |
 
 ## Timeline (chronological, oldest first)
 
@@ -40,6 +41,7 @@ reference for the full database schema.
 
 6. **Premium public UI redesign (September 2026)** — richer navy/cream/gold styling, redesigned homepage hero and content flow, matching About/Services/Our Craft/Projects/Contact pages, and responsive/accessibility refinements. See [`ui-design.md`](./ui-design.md).
 7. **Partner Portal App/PWA (September 2026)** — public `/partners` page, installable Partner Portal PWA, app icons, service worker, and mobile-first partner entry flow. See [`partner-portal-app.md`](./partner-portal-app.md).
+8. **Admin Panel App/PWA (October 2026)** — installable Admin app for admins who work mostly from mobile, with its own manifest, service worker and icons, scoped to `/admin`. See [`admin-panel-app.md`](./admin-panel-app.md).
 
 ## Quick module map
 

@@ -14,5 +14,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     { label: "Business", items: [{ href: "/admin/finance", label: "Finance" }, { href: "/admin/partners", label: "Partners" }] },
     { label: "Workshop", items: [{ href: "/admin/craft-designs", label: "Craft designs" }, { href: "/admin/boards", label: "Boards" }, { href: "/admin/materials", label: "Materials" }, { href: "/admin/measurement-labels", label: "Measurements" }] },
     { label: "Website content", items: [{ href: "/admin/categories", label: "Categories" }, { href: "/admin/banners", label: "Banners" }, { href: "/admin/products", label: "Products" }, { href: "/admin/raw-media", label: "Project media" }, { href: "/admin/about-us", label: "About us" }] },
+    { label: "App", items: [{ href: "/admin/install", label: "Install app" }] },
   ]}>{children}</PanelShell>;
 }
